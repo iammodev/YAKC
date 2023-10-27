@@ -1,0 +1,29 @@
+{
+  "name": "yakc",
+  "version": "0.0.1",
+  "description": "Yet Another Key Caster",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iammodev/YAKC.git"
+  },
+  "keywords": [
+    "YAKC"
+  ],
+  "author": "IAMMODEV",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iammodev/YAKC/issues"
+  },
+  "homepage": "https://github.com/iammodev/YAKC#readme",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "electron": "^27.0.2"
+  }
+}

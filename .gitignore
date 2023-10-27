@@ -1,0 +1,28 @@
+# Node.js
+node_modules/
+npm-debug.log
+
+# Editor/IDE specific
+.vscode/
+.idea/
+
+# Dependency directories
+jspm_packages/
+typings/
+
+# Output files
+dist/
+build/
+*.log
+npm-debug.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Project specific files/directories
+# Add any project-specific files or directories you want to exclude here
+
+# Environment variables
+.env
+.env.local
