@@ -1,7 +1,6 @@
 const { app, Tray, Menu, BrowserWindow, ipcMain, screen } = require("electron");
 const iohook = require("@mechakeys/iohook");
 const fs = require("fs");
-const keycodemap = require("./keycode/index");
 const keycode = require("keycode");
 let config;
 
@@ -53,6 +52,12 @@ app.on("ready", () => {
     if (convertSpecialKeys(event, config).length > 0)
       window.webContents.send("keydown", convertSpecialKeys(event, config));
   });
+
+  if (config && config.showMouseClick) {
+    iohook.on("mousedown", (event) => {
+      window.webContents.send("keydown", ` MOUSE${event.button} `);
+    });
+  }
 
   // Create a tray icon
   let menuTray = new Tray("./assets/yakc-logo.png");
