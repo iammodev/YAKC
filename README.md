@@ -1,4 +1,5 @@
 # YAKC - Yet Another Key Caster
+![yakc-logo](https://github.com/iammodev/YAKC/assets/89686923/4e87cfc1-a2d1-485c-ab78-e7120bf1653c)
 
 YAKC is a Platform-independent simple Electron-based application that displays key presses in real-time as popups.
 
