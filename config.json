@@ -1,0 +1,17 @@
+{
+    "showOnMonitor": 1,
+    "popupTextMaxWidthInPercentage": 60,
+    "popupOpacity": 1,
+    "popupFadeInSeconds": 0.5,
+    "popupFontSize": 20,
+    "popupFontColor": "#ffffff",
+    "popupBackgroundColor": "#150721",
+    "position": "bottom-left",
+    "topOffset": 0,
+    "bottomOffset": 100,
+    "leftOffset": 0,
+    "rightOffset": 0,
+    "onlyKeysWithModifiers": false,
+    "showSpaceAsUnicode": false,
+    "selectMap": "us"
+}
