@@ -1,6 +1,7 @@
 {
   "name": "yakc",
   "version": "0.0.1",
+  "icon": "./assets/testIcon.png",
   "description": "Yet Another Key Caster",
   "main": "main.js",
   "scripts": {
@@ -26,6 +27,7 @@
   "dependencies": {
     "@mechakeys/iohook": "^1.1.1",
     "electron": "^25.9.3",
+    "keycode": "^2.2.1",
     "keycodemap": "^1.4.7",
     "node-abi": "^3.51.0"
   },
@@ -42,5 +44,8 @@
     "arches": [
       "x64"
     ]
+  },
+  "devDependencies": {
+    "electron-packager": "^17.1.2"
   }
 }

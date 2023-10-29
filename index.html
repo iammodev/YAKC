@@ -45,18 +45,29 @@
       function applyInitialStyles(config) {
         const style = document.createElement("style");
         style.type = "text/css";
+
+        const {
+          popupBackgroundColor,
+          popupFontColor,
+          popupFontSize,
+          popupFadeInSeconds,
+          popupTextMaxWidthInPercentage,
+          popupOpacity,
+        } = config;
+
         style.innerHTML = `
-      .popup {
-        background-color: ${config.popupBackgroundColor};
-        color: ${config.popupFontColor};
-        font-size: ${config.popupFontSize}px;
-        transition: opacity ${config.popupFadeInSeconds}s ease-in-out;
-        max-width: ${config.popupTextMaxWidthInPercentage}%;
-      }
-      .popup.active {
-        opacity: ${config.popupOpacity}
-      }
-    `;
+    .popup {
+      background-color: ${popupBackgroundColor};
+      color: ${popupFontColor};
+      font-size: ${popupFontSize}px;
+      transition: opacity ${popupFadeInSeconds}s ease-in-out;
+      max-width: ${popupTextMaxWidthInPercentage}%;
+    }
+    .popup.active {
+      opacity: ${popupOpacity}
+    }
+  `;
+
         document.getElementsByTagName("head")[0].appendChild(style);
       }
 

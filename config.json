@@ -3,7 +3,7 @@
     "popupTextMaxWidthInPercentage": 60,
     "popupOpacity": 1,
     "popupFadeInSeconds": 0.5,
-    "popupFontSize": 20,
+    "popupFontSize": 12,
     "popupFontColor": "#ffffff",
     "popupBackgroundColor": "#150721",
     "position": "bottom-left",
@@ -12,6 +12,5 @@
     "leftOffset": 0,
     "rightOffset": 0,
     "onlyKeysWithModifiers": false,
-    "showSpaceAsUnicode": false,
-    "selectMap": "us"
+    "showSpaceAsUnicode": false
 }

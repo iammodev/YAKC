@@ -10,6 +10,9 @@ npm-debug.log
 jspm_packages/
 typings/
 
+# test builds
+yakc-win32-x64/
+
 # Output files
 dist/
 build/
