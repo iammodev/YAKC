@@ -7,7 +7,7 @@ app.on("ready", () => {
   // Load Config
   const config = JSON.parse(fs.readFileSync("./config.json", "utf-8"));
   const {
-    monitor,
+    showOnMonitor,
     position,
     topOffset,
     bottomOffset,
@@ -16,14 +16,16 @@ app.on("ready", () => {
   } = config;
 
   // Get all available monitors
-  const monitors = screen.getAllDisplays();
+  const displays = screen.getAllDisplays();
 
   // Select the monitor in the config if available
-  const selectedMonitor = monitors[monitor] || screen.getPrimaryDisplay();
+  const selectedMonitor = displays[showOnMonitor] || screen.getPrimaryDisplay();
 
-  //TODO: get screen position
+  console.log(displays[showOnMonitor]);
 
   const window = new BrowserWindow({
+    x: selectedMonitor.bounds.x,
+    y: selectedMonitor.bounds.y,
     width: selectedMonitor.bounds.width,
     height: selectedMonitor.bounds.height,
     fullscreen: true,

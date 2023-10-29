@@ -1,5 +1,5 @@
 {
-    "showOnMonitor": 1,
+    "showOnMonitor": 0,
     "popupTextMaxWidthInPercentage": 60,
     "popupOpacity": 1,
     "popupFadeInSeconds": 0.5,
