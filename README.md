@@ -9,6 +9,9 @@ YAKC is a Platform-independent simple Electron-based application that displays k
 - Configurable styling options.
 - Automatic removal of old popups.
 
+  ![example01](https://github.com/iammodev/YAKC/assets/89686923/97d1770b-f297-40c4-ac2b-738fcbc99aa5)
+
+
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) installed on your system.
