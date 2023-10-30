@@ -43,6 +43,7 @@ The configuration file `config.json` allows you to customize the behavior of YAK
 - `popupOpacity`: Specifies the opacity of the pop-up text.
 - `popupFadeInSeconds`: Specifies the duration of the fade-in effect for the pop-up text.
 - `popupFontSize`: Specifies the font size of the pop-up text.
+- `popupBorderRadius`: Specifices the Border Radius of the pop-up.
 - `popupFontColor`: Specifies the font color of the pop-up text.
 - `popupBackgroundColor`: Specifies the background color of the pop-up text.
 - `position`: Specifies the position of the pop-up text on the screen. Valid values are "top-left", "top-right", "bottom-left", and "bottom-right".
