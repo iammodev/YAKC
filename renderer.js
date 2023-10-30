@@ -25,6 +25,7 @@ function applyInitialStyles(config) {
     popupFadeInSeconds,
     popupTextMaxWidthInPercentage,
     popupOpacity,
+    popupBorderRadius,
   } = config;
 
   style.innerHTML = `
@@ -34,6 +35,7 @@ function applyInitialStyles(config) {
       font-size: ${popupFontSize}px !important;
       transition: opacity ${popupFadeInSeconds}s ease-in-out !important;
       max-width: ${popupTextMaxWidthInPercentage}% !important;
+      border-radius: ${popupBorderRadius}px !important;
     }
     .popup.active {
       opacity: ${popupOpacity} !important;

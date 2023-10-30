@@ -4,6 +4,7 @@
     "popupOpacity": 1,
     "popupFadeInSeconds": 0.5,
     "popupFontSize": 20,
+    "popupBorderRadius": 10,
     "popupFontColor": "#ffffff",
     "popupBackgroundColor": "#150721",
     "position": "bottom-left",
