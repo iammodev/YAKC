@@ -48,10 +48,12 @@ app.on("ready", () => {
 
   iohook.start();
 
-  iohook.on("keydown", (event) => {
-    if (convertSpecialKeys(event, config).length > 0)
-      window.webContents.send("keydown", convertSpecialKeys(event, config));
-  });
+  if (config && config.showKeyboardClick) {
+    iohook.on("keydown", (event) => {
+      if (convertSpecialKeys(event, config).length > 0)
+        window.webContents.send("keydown", convertSpecialKeys(event, config));
+    });
+  }
 
   if (config && config.showMouseClick) {
     iohook.on("mousedown", (event) => {

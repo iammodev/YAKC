@@ -2,7 +2,7 @@
 
 ![yakc-logo](https://github.com/iammodev/YAKC/assets/89686923/d776922e-ebb8-42b0-b49f-c516d52957ae)
 
-YAKC is a Platform-independent simple Electron-based application that displays key presses in real-time as popups.
+YAKC is an open-source Platform-independent Electron-based keystroke visualizer.
 
 ## Features
 
@@ -26,13 +26,21 @@ YAKC is a Platform-independent simple Electron-based application that displays k
 git clone https://github.com/iammodev/YAKC.git
 ```
 
+2. `cd YAKC`
+
+3. `npm install`
+
 ## Usage
 
 1. Start the application: `npm start`
 2. The application will launch and display a system tray icon.
 3. Start casting your keyboard keys as pop-up text on your screen.
 
-## Build (TODO)
+## Build
+
+1. `npm install --save-dev electron-packager`
+
+2. `npx electron-packager .`
 
 ## Configuration
 
