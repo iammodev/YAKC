@@ -18,11 +18,14 @@ app.on("ready", () => {
       popupRemoveAfterSeconds: "3",
       popupInactiveAfterSeconds: ".5",
       popupFontSize: "20",
+      popupFontFamily: "Tahoma, sans-serif",
+      popupFontWeight: "bold",
       popupBorderRadius: "10",
       popupFontColor: "#ffffff",
-      popupBackgroundColor: "#150721",
+      popupBackgroundColor: "#000000",
       showKeyboardClick: true,
       showMouseClick: true,
+      showMouseCoordinates: false,
       onlyKeysWithModifiers: false,
       showSpaceAsUnicode: false,
       position: "top-left",
@@ -41,7 +44,9 @@ app.on("ready", () => {
   }
   const {
     showOnMonitor,
-    captureToggleHotkey,
+    showKeyboardClick,
+    showMouseClick,
+    showMouseCoordinates,
     position,
     topOffset,
     bottomOffset,
@@ -81,7 +86,7 @@ app.on("ready", () => {
 
   iohook.start();
 
-  if (config && config.showKeyboardClick) {
+  if (showKeyboardClick) {
     iohook.on("keydown", (event) => {
       if (convertSpecialKeys(event, config).length > 0) {
         window.webContents.send("keydown", convertSpecialKeys(event, config));
@@ -89,10 +94,19 @@ app.on("ready", () => {
     });
   }
 
-  if (config && config.showMouseClick) {
-    iohook.on("mousedown", (event) => {
-      window.webContents.send("keydown", ` MOUSE${event.button} `);
-    });
+  if (showMouseClick) {
+    if (!showMouseCoordinates) {
+      iohook.on("mousedown", (event) => {
+        window.webContents.send("keydown", ` MOUSE${event.button} `);
+      });
+    } else {
+      iohook.on("mousedown", (event) => {
+        window.webContents.send(
+          "keydown",
+          ` MOUSE${event.button} X: ${event.x} Y: ${event.y} `
+        );
+      });
+    }
   }
 
   let trayIcon;
@@ -118,7 +132,7 @@ app.on("ready", () => {
   ]);
 
   // Set Tool Tip
-  menuTray.setToolTip("YAKC");
+  menuTray.setToolTip("YAKC - Yet Another Key Caster");
 
   // Set ContextMenu
   menuTray.setContextMenu(contextMenu);

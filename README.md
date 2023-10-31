@@ -69,11 +69,17 @@ The configuration file `config.json` allows you to customize the behavior of YAK
 
 - `popupFontColor`: Font color of popup text.
 
+- `popupFontFamily`: Font Family for the text.
+
+- `popupFontWeight`: Font weight of popup text.
+
 - `popupBorderRadius`: Corner border radius. Use "0" for sharp corners.
 
 - `popupBackgroundColor`: Background color of popup text.
 
 - `showMouseClick`: Show mouse clicks. Options: true, false.
+
+- `showMouseCoordinates`: Show mouse coordinates. Options: true, false.
 
 - `showKeyboardClick`: Show Keyboard clicks. Options: true, false.
 

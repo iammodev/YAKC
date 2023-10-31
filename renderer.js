@@ -11,6 +11,8 @@ const {
   popupBorderRadius,
   popupFontColor,
   popupBackgroundColor,
+  popupFontFamily,
+  popupFontWeight,
   position,
   topOffset,
   bottomOffset,
@@ -37,6 +39,8 @@ function applyInitialStyles() {
 
   style.innerHTML = `
     .popup {
+      font-family: ${popupFontFamily} !important;
+      font-weight: ${popupFontWeight} !important;
       background-color: ${popupBackgroundColor} !important;
       color: ${popupFontColor} !important;
       font-size: ${popupFontSize}px !important;
@@ -50,8 +54,6 @@ function applyInitialStyles() {
   `;
 
   document.getElementsByTagName("head")[0].appendChild(style);
-
-  //document.body.style.marginTop = `90%`;
 }
 
 ipcRenderer.on("keydown", (event, keyLabel) => {
