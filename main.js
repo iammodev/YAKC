@@ -1,13 +1,44 @@
-const { app, Tray, Menu, BrowserWindow, ipcMain, screen } = require("electron");
+const { app, Tray, Menu, BrowserWindow, dialog, screen } = require("electron");
 const iohook = require("@mechakeys/iohook");
 const fs = require("fs");
 const keycode = require("keycode");
+const path = require("path");
 let config;
 let isCapturing = true;
 
 app.on("ready", () => {
-  // Load Config
-  config = JSON.parse(fs.readFileSync("./config.json", "utf-8"));
+  if (fs.existsSync("./config.json")) {
+    config = JSON.parse(fs.readFileSync("./config.json", "utf-8"));
+  } else {
+    config = {
+      showOnMonitor: "0",
+      popupTextMaxWidthInPercentage: "60",
+      popupOpacity: ".9",
+      popupFadeInSeconds: "0.5",
+      popupRemoveAfterSeconds: "3",
+      popupInactiveAfterSeconds: ".5",
+      popupFontSize: "20",
+      popupBorderRadius: "10",
+      popupFontColor: "#ffffff",
+      popupBackgroundColor: "#150721",
+      showKeyboardClick: true,
+      showMouseClick: true,
+      onlyKeysWithModifiers: false,
+      showSpaceAsUnicode: false,
+      position: "top-left",
+      topOffset: "0",
+      bottomOffset: "0",
+      leftOffset: "0",
+      rightOffset: "0",
+    };
+    fs.writeFileSync("./config.json", JSON.stringify(config, null, 2));
+    dialog.showMessageBox({
+      type: "info",
+      message:
+        "YAKC does not have a configuration file. A default configuration file is being created. Please edit the 'config.json' file and restart the application for your changes to take effect.",
+      buttons: ["Okay"],
+    });
+  }
   const {
     showOnMonitor,
     captureToggleHotkey,
@@ -64,8 +95,21 @@ app.on("ready", () => {
     });
   }
 
+  let trayIcon;
+
+  switch (process.platform) {
+    case "win32":
+      trayIcon = path.join(__dirname, "assets", "icons", "windows", "icon.ico");
+      break;
+    case "darwin":
+      trayIcon = path.join(__dirname, "assets", "icons", "mac", "icon.icns");
+      break;
+    default:
+      trayIcon = path.join(__dirname, "assets", "icons", "linux", "icon.png");
+  }
+
   // Create a tray icon
-  let menuTray = new Tray("./assets/yakc-logo.png");
+  const menuTray = new Tray(trayIcon);
 
   // Set the context menu
   const contextMenu = Menu.buildFromTemplate([

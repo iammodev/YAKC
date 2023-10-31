@@ -6,9 +6,14 @@ YAKC is an open-source Platform-independent Electron-based keystroke visualizer.
 
 ## Features
 
-- Display real-time on key press.
-- Highly customizable appearance options.
-- Automatic removal of popups after X seconds.
+- Highly customizable style options
+- Flexible Positioning
+- Show Modifiers only
+- Toggle Keyboard/Mouse Click Visualitazion
+- Force popup next line on screen percentage
+- Smooth Transition (Fade In & Fade Out)
+- Timing Control
+- Spacebar as Unicode? ("␣")
 
 ![example01](https://github.com/iammodev/YAKC/assets/89686923/c5a716ce-67c6-45e4-8011-39a7dd86e005)
 
@@ -40,7 +45,9 @@ git clone https://github.com/iammodev/YAKC.git
 
 1. `npm install --save-dev electron-packager`
 
-2. `npx electron-packager .`
+2. `npm run package:windows` (Options: package:windows, package:mac, package:linux, package:all)
+
+3. run executable
 
 ## Configuration
 
