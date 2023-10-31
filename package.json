@@ -7,7 +7,7 @@
   "scripts": {
     "start": "electron main.js",
     "package:mac": "electron-packager . YAKC --platform=darwin --arch=x64 --out=build/mac --icon=./assets/icons/mac/icon.icns",
-    "package:windows": "electron-packager . YAKC --platform=win32 --arch=x64 --out=build/win --icon=./assets/icons/windows/icon.ico",
+    "package:windows": "electron-packager . YAKC --platform=win32 --arch=x64 --out=build/windows --icon=./assets/icons/windows/icon.ico",
     "package:linux": "electron-packager . YAKC --platform=linux --arch=x64 --out=build/linux --icon=./assets/icons/linux/icon.png",
     "package:all": "npm run package:mac && npm run package:win && npm run package:linux"
   },
