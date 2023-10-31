@@ -24,6 +24,9 @@
   "directories": {
     "test": "test"
   },
+  "devDependencies": {
+    "electron-packager": "^17.1.2"
+  },
   "dependencies": {
     "@mechakeys/iohook": "^1.1.1",
     "electron": "^25.9.3",
@@ -44,8 +47,5 @@
     "arches": [
       "x64"
     ]
-  },
-  "devDependencies": {
-    "electron-packager": "^17.1.2"
   }
 }

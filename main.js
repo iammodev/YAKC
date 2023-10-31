@@ -33,6 +33,7 @@ app.on("ready", () => {
     alwaysOnTop: true,
     resizable: false,
     skipTaskbar: false,
+    kiosk: true,
     frame: false,
     webPreferences: {
       nodeIntegration: true,
@@ -44,14 +45,14 @@ app.on("ready", () => {
 
   window.setIgnoreMouseEvents(true);
   window.loadFile("./index.html");
-  window.webContents.send("config", config);
 
   iohook.start();
 
   if (config && config.showKeyboardClick) {
     iohook.on("keydown", (event) => {
-      if (convertSpecialKeys(event, config).length > 0)
+      if (convertSpecialKeys(event, config).length > 0) {
         window.webContents.send("keydown", convertSpecialKeys(event, config));
+      }
     });
   }
 
@@ -74,12 +75,6 @@ app.on("ready", () => {
 
   // Set ContextMenu
   menuTray.setContextMenu(contextMenu);
-});
-
-ipcMain.on("config", (event, newConfig) => {
-  if (newConfig) {
-    window.webContents.send("config", newConfig);
-  }
 });
 
 function convertSpecialKeys(event, config) {

@@ -7,8 +7,8 @@ YAKC is an open-source Platform-independent Electron-based keystroke visualizer.
 ## Features
 
 - Display real-time on key press.
-- Configurable styling options.
-- Automatic removal of old popups.
+- Highly customizable appearance options.
+- Automatic removal of popups after X seconds.
 
 ![example01](https://github.com/iammodev/YAKC/assets/89686923/c5a716ce-67c6-45e4-8011-39a7dd86e005)
 
@@ -34,7 +34,7 @@ git clone https://github.com/iammodev/YAKC.git
 
 1. Start the application: `npm start`
 2. The application will launch and display a system tray icon.
-3. Start casting your keyboard keys as pop-up text on your screen.
+3. Upon pressing on any key, a popup will appear.
 
 ## Build
 
@@ -47,25 +47,52 @@ git clone https://github.com/iammodev/YAKC.git
 The configuration file `config.json` allows you to customize the behavior of YAKC. Here are the available options:
 
 - `showOnMonitor`: Specifies the monitor on which the pop-up text should be displayed. The value should be the index of the monitor (starting from 0).
+
 - `popupTextMaxWidthInPercentage`: Specifies the maximum width of the pop-up text as a percentage of the screen width.
-- `popupOpacity`: Specifies the opacity of the pop-up text.
-- `popupFadeInSeconds`: Specifies the duration of the fade-in effect for the pop-up text.
-- `popupFontSize`: Specifies the font size of the pop-up text.
-- `popupBorderRadius`: Specifices the Border Radius of the pop-up.
-- `popupFontColor`: Specifies the font color of the pop-up text.
-- `popupBackgroundColor`: Specifies the background color of the pop-up text.
-- `position`: Specifies the position of the pop-up text on the screen. Valid values are "top-left", "top-right", "bottom-left", and "bottom-right".
-- `topOffset`: Specifies the top offset of the pop-up text in pixels.
-- `bottomOffset`: Specifies the bottom offset of the pop-up text in pixels.
-- `leftOffset`: Specifies the left offset of the pop-up text in pixels.
-- `rightOffset`: Specifies the right offset of the pop-up text in pixels.
-- `showMouseClick`: Specifies whether to show mouse clicks as pop-up text.
-- `onlyKeysWithModifiers`: Specifies whether to show only keys with modifiers as pop-up text.
-- `showSpaceAsUnicode`: Specifies whether to show the space key as the Unicode character.
+
+- `popupOpacity`: Opacity of the popup text. Range: ("0.0" - "1").
+
+- `popupFadeInSeconds`: Duration of Fade effect for the popup text.
+
+- `popupRemoveAfterSeconds`: Remove inactive popup after X seconds.
+
+- `popupInactiveAfterSeconds`: After X seconds, a new popup will be created upon key/mouse press.
+
+- `popupFontSize`: Font size of popup text.
+
+- `popupFontColor`: Font color of popup text.
+
+- `popupBorderRadius`: Corner border radius. Use "0" for sharp corners.
+
+- `popupBackgroundColor`: Background color of popup text.
+
+- `showMouseClick`: Show mouse clicks. Options: true, false.
+
+- `showKeyboardClick`: Show Keyboard clicks. Options: true, false.
+
+- `onlyKeysWithModifiers`: Show only keys with modifiers. Options: (true, false).
+
+- `showSpaceAsUnicode`: Show space as Unicode character (␣). Options: (true, false).
+
+- `position`: Position of popup on screen. Options: "top-left", "top-right", "bottom-left", and "bottom-right".
+
+- `topOffset`: Top offset of the popup text in pixels.
+
+- `bottomOffset`: Bottom offset of the pop-up text in pixels.
+
+- `leftOffset`: Left offset of the pop-up text in pixels.
+
+- `rightOffset`: Right offset of the pop-up text in pixels.
 
 ## Contributing
 
 Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
+
+## Security Assurance
+
+YAKC is free and open source. YAKC operates independently without any network interactions. Your private information, including passwords, is never stored or shared by YAKC, guaranteeing your safety and privacy.
+
+**Please Exercise Caution**: When using YAKC for activities like presentation, recording or streaming, be mindful not to inadvertently share sensitive information. Always ensure your privacy and the security of any confidential data.
 
 ## License
 

@@ -1,4 +1,23 @@
 const ipcRenderer = require("electron").ipcRenderer;
+const fs = require("fs");
+
+// load config
+let config = JSON.parse(fs.readFileSync("./config.json", "utf-8"));
+const {
+  popupTextMaxWidthInPercentage,
+  popupOpacity,
+  popupFadeInSeconds,
+  popupFontSize,
+  popupBorderRadius,
+  popupFontColor,
+  popupBackgroundColor,
+  position,
+  topOffset,
+  bottomOffset,
+  leftOffset,
+  rightOffset,
+} = config;
+
 let debug = false; // Set to false to disable debugging
 
 let lastKeyTime = 0;
@@ -6,27 +25,15 @@ let popupContainers = []; // Store all popup containers
 let popupContainer; // Store the current popup container
 let popups = []; // Store the current active popups
 let popupTimers = []; // Store timers for clearing popups
-let removeOldPopupTimers = []; // Timers for removing old popups
 
-ipcRenderer.on("config", (e, config) => {
-  // Apply the initial styles from the config
-  applyInitialStyles(config);
-});
+window.onload = () => {
+  applyInitialStyles();
+};
 
 // Function to apply initial styles
-function applyInitialStyles(config) {
+function applyInitialStyles() {
   const style = document.createElement("style");
   style.type = "text/css";
-
-  const {
-    popupBackgroundColor,
-    popupFontColor,
-    popupFontSize,
-    popupFadeInSeconds,
-    popupTextMaxWidthInPercentage,
-    popupOpacity,
-    popupBorderRadius,
-  } = config;
 
   style.innerHTML = `
     .popup {
@@ -42,12 +49,14 @@ function applyInitialStyles(config) {
     }
   `;
 
-  console.log(document.getElementsByTagName("head")[0].appendChild(style));
+  document.getElementsByTagName("head")[0].appendChild(style);
+
+  //document.body.style.marginTop = `90%`;
 }
 
 ipcRenderer.on("keydown", (event, keyLabel) => {
   const currentTime = Date.now();
-  if (currentTime - lastKeyTime > 1000) {
+  if (currentTime - lastKeyTime > config.popupInactiveAfterSeconds * 1000) {
     if (popupContainer) {
       removeOldPopups();
     }
@@ -77,12 +86,12 @@ function createPopup(text) {
   popup.classList.add("popup", "active");
   popup.textContent = text;
 
-  // Set a timer to remove the popup after 6 seconds of inactivity
+  // Set a timer to remove the popup after X seconds of inactivity
   const popupIndex = popups.length;
   popupTimers.push(
     setTimeout(() => {
       removePopup(popupIndex);
-    }, 6000)
+    }, config.popupRemoveAfterSeconds * 1000)
   );
 
   return popup;
@@ -93,7 +102,7 @@ function resetPopupTimer(index) {
     clearTimeout(popupTimers[index]);
     popupTimers[index] = setTimeout(() => {
       removePopup(index);
-    }, 6000);
+    }, config.popupRemoveAfterSeconds * 1000);
   }
 }
 
