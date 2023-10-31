@@ -22,6 +22,7 @@ https://github.com/iammodev/YAKC/assets/89686923/61ebf7db-5171-4d5d-997b-59efd30
 - [Node.js](https://nodejs.org/) installed on your system.
 - [Electron](https://www.electronjs.org/) for building and running the application.
 - [iohook](https://github.com/mechakeys/iohook) for capturing keyboard & mouse input.
+- [keycode](https://github.com/timoxley/keycode) for converting keycodes.
 
 ## Installation
 
