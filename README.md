@@ -15,7 +15,7 @@ YAKC is an open-source Platform-independent Electron-based keystroke visualizer.
 - Timing Control
 - Spacebar as Unicode? ("␣")
 
-![example01](https://github.com/iammodev/YAKC/assets/89686923/c5a716ce-67c6-45e4-8011-39a7dd86e005)
+https://github.com/iammodev/YAKC/assets/89686923/61ebf7db-5171-4d5d-997b-59efd30218ec
 
 ## Prerequisites
 
