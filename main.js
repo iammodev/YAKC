@@ -3,12 +3,14 @@ const iohook = require("@mechakeys/iohook");
 const fs = require("fs");
 const keycode = require("keycode");
 let config;
+let isCapturing = true;
 
 app.on("ready", () => {
   // Load Config
   config = JSON.parse(fs.readFileSync("./config.json", "utf-8"));
   const {
     showOnMonitor,
+    captureToggleHotkey,
     position,
     topOffset,
     bottomOffset,
@@ -67,6 +69,7 @@ app.on("ready", () => {
 
   // Set the context menu
   const contextMenu = Menu.buildFromTemplate([
+    { label: "Toggle Capturing", click: () => toggleCapturing() },
     { label: "Quit", click: () => app.exit() },
   ]);
 
@@ -76,6 +79,16 @@ app.on("ready", () => {
   // Set ContextMenu
   menuTray.setContextMenu(contextMenu);
 });
+
+function toggleCapturing() {
+  isCapturing = !isCapturing;
+
+  if (isCapturing) {
+    iohook.start();
+  } else {
+    iohook.stop();
+  }
+}
 
 function convertSpecialKeys(event, config) {
   const keyLabel = keycode(event.rawcode);
