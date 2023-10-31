@@ -1,6 +1,6 @@
 {
   "name": "yakc",
-  "version": "0.0.9",
+  "version": "1.0.0",
   "icon": "./assets/yakc-logo.png",
   "description": "Yet Another Key Caster",
   "main": "main.js",
