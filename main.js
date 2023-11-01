@@ -28,6 +28,7 @@ app.on("ready", () => {
       showMouseCoordinates: false,
       onlyKeysWithModifiers: false,
       showSpaceAsUnicode: false,
+      textToSpeech: true,
       position: "top-left",
       topOffset: "0",
       bottomOffset: "0",
@@ -47,6 +48,7 @@ app.on("ready", () => {
     showKeyboardClick,
     showMouseClick,
     showMouseCoordinates,
+    textToSpeech,
     position,
     topOffset,
     bottomOffset,
@@ -60,7 +62,7 @@ app.on("ready", () => {
   // Select the monitor in the config if available
   const selectedMonitor = displays[showOnMonitor] || screen.getPrimaryDisplay();
 
-  const window = new BrowserWindow({
+  const mainWindow = new BrowserWindow({
     x: selectedMonitor.bounds.x,
     y: selectedMonitor.bounds.y,
     width: selectedMonitor.bounds.width,
@@ -81,15 +83,18 @@ app.on("ready", () => {
 
   //window.webContents.openDevTools();
 
-  window.setIgnoreMouseEvents(true);
-  window.loadFile("./index.html");
+  mainWindow.setIgnoreMouseEvents(true);
+  mainWindow.loadFile("./index.html");
 
   iohook.start();
 
   if (showKeyboardClick) {
     iohook.on("keydown", (event) => {
       if (convertSpecialKeys(event, config).length > 0) {
-        window.webContents.send("keydown", convertSpecialKeys(event, config));
+        mainWindow.webContents.send(
+          "keydown",
+          convertSpecialKeys(event, config)
+        );
       }
     });
   }
@@ -97,11 +102,11 @@ app.on("ready", () => {
   if (showMouseClick) {
     if (!showMouseCoordinates) {
       iohook.on("mousedown", (event) => {
-        window.webContents.send("keydown", ` MOUSE${event.button} `);
+        mainWindow.webContents.send("keydown", ` MOUSE${event.button} `);
       });
     } else {
       iohook.on("mousedown", (event) => {
-        window.webContents.send(
+        mainWindow.webContents.send(
           "keydown",
           ` MOUSE${event.button} X: ${event.x} Y: ${event.y} `
         );

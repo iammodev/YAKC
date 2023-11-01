@@ -13,6 +13,8 @@ const {
   popupBackgroundColor,
   popupFontFamily,
   popupFontWeight,
+  textToSpeech,
+  textToSpeechCancelSpeechOnNewKey,
   position,
   topOffset,
   bottomOffset,
@@ -71,6 +73,21 @@ ipcRenderer.on("keydown", (event, keyLabel) => {
     resetPopupTimer(popups.length - 1);
   }
   lastKeyTime = currentTime;
+
+  if (textToSpeech) {
+    if ("speechSynthesis" in window) {
+      const synth = window.speechSynthesis;
+      const utterance = new SpeechSynthesisUtterance(keyLabel);
+      if (textToSpeechCancelSpeechOnNewKey) {
+        if (utterance && synth.speaking) {
+          synth.cancel();
+        }
+      }
+      synth.speak(utterance);
+    } else {
+      console.log("Text-to-speech is not supported in this browser.");
+    }
+  }
 });
 
 function createPopupContainer() {

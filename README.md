@@ -88,6 +88,10 @@ The configuration file `config.json` allows you to customize the behavior of YAK
 
 - `showSpaceAsUnicode`: Show space as Unicode character (␣). Options: (true, false).
 
+- `textToSpeech`: Speak out loud every Keystroke. (perfect for blind people!). Options: (true, false).
+
+- `textToSpeechCancelSpeechOnNewKey`: Cancels current SpeechToText if new Keystroke pressed. Options: (true, false).
+
 - `position`: Position of popup on screen. Options: "top-left", "top-right", "bottom-left", and "bottom-right".
 
 - `topOffset`: Top offset of the popup text in pixels.
@@ -97,6 +101,13 @@ The configuration file `config.json` allows you to customize the behavior of YAK
 - `leftOffset`: Left offset of the pop-up text in pixels.
 
 - `rightOffset`: Right offset of the pop-up text in pixels.
+
+## TODO:
+
+- [ ] position (top-left, top-right, bottom-left, bottom-right)
+- [ ] topOffset, bottomOffset, leftOffset, rightOffset
+- [ ] GUI to easily configure at runtime
+- [ ] Drag and Drop the popup to desired position
 
 ## Contributing
 

@@ -16,6 +16,8 @@
     "showMouseCoordinates": true,
     "onlyKeysWithModifiers": false,
     "showSpaceAsUnicode": false,
+    "textToSpeech": true,
+    "textToSpeechCancelSpeechOnNewKey": false,
     "position": "top-left",
     "topOffset": "0",
     "bottomOffset": "0",
