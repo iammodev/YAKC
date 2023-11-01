@@ -14,6 +14,7 @@ YAKC is an open-source Platform-independent Electron-based keystroke visualizer.
 - Smooth Transition (Fade In & Fade Out)
 - Timing Control
 - Spacebar as Unicode? ("␣")
+- Text-To-Speech (perfect for blind people)
 
 https://github.com/iammodev/YAKC/assets/89686923/61ebf7db-5171-4d5d-997b-59efd30218ec
 
