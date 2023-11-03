@@ -109,6 +109,7 @@ The configuration file `config.json` allows you to customize the behavior of YAK
 - [ ] Drag and Drop the popup to desired position
 - [ ] Add hotkey for start/stop listening to keystrokes
 - [ ] Reliable solution for all/common keyboard layout's (please contact me if you have knowledge about this)
+- [ ] Add unit tests
 
 ## Related
 
