@@ -9,7 +9,7 @@ YAKC is an open-source Platform-independent Electron-based keystroke visualizer.
 - Highly customizable style options
 - Flexible Positioning
 - Show Modifiers only
-- Toggle Keyboard/Mouse Click Visualitazion
+- Toggle Keyboard/Mouse Click Visualization
 - Force popup next line on screen percentage
 - Smooth Transition (Fade In & Fade Out)
 - Timing Control
@@ -22,8 +22,6 @@ https://github.com/iammodev/YAKC/assets/89686923/61ebf7db-5171-4d5d-997b-59efd30
 
 - [Node.js](https://nodejs.org/) installed on your system.
 - [Electron](https://www.electronjs.org/) for building and running the application.
-- [iohook](https://github.com/mechakeys/iohook) for capturing keyboard & mouse input.
-- [keycode](https://github.com/timoxley/keycode) for converting keycodes.
 
 ## Installation
 
@@ -109,6 +107,13 @@ The configuration file `config.json` allows you to customize the behavior of YAK
 - [ ] topOffset, bottomOffset, leftOffset, rightOffset
 - [ ] GUI to easily configure at runtime
 - [ ] Drag and Drop the popup to desired position
+- [ ] Add hotkey for start/stop listening to keystrokes
+- [ ] Reliable solution for all/common keyboard layout's (please contact me if you have knowledge about this)
+
+## Related
+
+- [iohook](https://github.com/mechakeys/iohook) for capturing keyboard & mouse input.
+- [keycode](https://github.com/timoxley/keycode) for converting keycodes.
 
 ## Contributing
 
