@@ -85,6 +85,7 @@ app.on("ready", () => {
     },
   });
 
+  // useful for debugging
   //mainWindow.webContents.openDevTools();
 
   // Disable mouse events (useful for transparent windows)
