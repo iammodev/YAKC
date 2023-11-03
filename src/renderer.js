@@ -1,41 +1,31 @@
-const ipcRenderer = require("electron").ipcRenderer;
-const fs = require("fs");
+// define custom YAKC API
+const getYAKCAPI = window.YAKCAPI;
 
-// load config
-let config = JSON.parse(fs.readFileSync("./config.json", "utf-8"));
-const {
-  popupTextMaxWidthInPercentage,
-  popupOpacity,
-  popupFadeInSeconds,
-  popupFontSize,
-  popupBorderRadius,
-  popupFontColor,
-  popupBackgroundColor,
-  popupFontFamily,
-  popupFontWeight,
-  textToSpeech,
-  textToSpeechCancelSpeechOnNewKey,
-  position,
-  topOffset,
-  bottomOffset,
-  leftOffset,
-  rightOffset,
-} = config;
+let config;
+
+// get the config data from main.js
+getYAKCAPI.onConfigData((getConfig) => {
+  console.log(getConfig);
+  config = getConfig;
+});
+
+/**
+ * This function is called when the window loads.
+ * It calls the onRendererLoaded function from the YAKCAPI.
+ * The reason for this is to ensure config never gets called before the window loads.
+ */
+window.onload = () => {
+  // Call the onRendererLoaded function from the YAKCAPI
+  getYAKCAPI.onRendererLoaded();
+};
 
 let debug = false; // Set to false to disable debugging
 
-let lastKeyTime = 0;
+let lastKeyTime = 0; // Store the time of the last key press
 let popupContainers = []; // Store all popup containers
 let popupContainer; // Store the current popup container
 let popups = []; // Store the current active popups
 let popupTimers = []; // Store timers for clearing popups
-
-/**
- * Apply initial styles upon window load
- */
-window.onload = () => {
-  applyInitialStyles();
-};
 
 /**
  * Function to apply initial styles
@@ -50,17 +40,17 @@ function applyInitialStyles() {
   // Define the CSS rules
   style.innerHTML = `
     .popup {
-      font-family: ${popupFontFamily} !important;
-      font-weight: ${popupFontWeight} !important;
-      background-color: ${popupBackgroundColor} !important;
-      color: ${popupFontColor} !important;
-      font-size: ${popupFontSize}px !important;
-      transition: opacity ${popupFadeInSeconds}s ease-in-out !important;
-      max-width: ${popupTextMaxWidthInPercentage}% !important;
-      border-radius: ${popupBorderRadius}px !important;
+      font-family: ${config.popupFontFamily} !important;
+      font-weight: ${config.popupFontWeight} !important;
+      background-color: ${config.popupBackgroundColor} !important;
+      color: ${config.popupFontColor} !important;
+      font-size: ${config.popupFontSize}px !important;
+      transition: opacity ${config.popupFadeInSeconds}s ease-in-out !important;
+      max-width: ${config.popupTextMaxWidthInPercentage}% !important;
+      border-radius: ${config.popupBorderRadius}px !important;
     }
     .popup.active {
-      opacity: ${popupOpacity} !important;
+      opacity: ${config.popupOpacity} !important;
     }
   `;
 
@@ -69,13 +59,13 @@ function applyInitialStyles() {
 }
 
 /**
- * Handles the "keydown" event from the IPC renderer.
- *
- * @param {Event} event - The event object.
- * @param {string} keyLabel - The label of the key pressed.
+ * Handles the "keydown" event from.
+ * getYAKCAPI gets called from preload.js.
+ * @param {string} keyLabel - The label of the pressed key.
  */
-ipcRenderer.on("keydown", (event, keyLabel) => {
+getYAKCAPI.onClickEvent((keyLabel) => {
   const currentTime = Date.now();
+  if (!config) return;
 
   // Check if enough time has passed since the last key press
   if (currentTime - lastKeyTime > config.popupInactiveAfterSeconds * 1000) {
@@ -97,7 +87,6 @@ ipcRenderer.on("keydown", (event, keyLabel) => {
     popupContainer.appendChild(popups[popups.length - 1]);
   } else if (popupContainer) {
     // If there is an existing popup, update its content
-    console.log("gets caalled here");
     popups[popups.length - 1].textContent += keyLabel;
 
     // Reset the popup timer
@@ -108,13 +97,13 @@ ipcRenderer.on("keydown", (event, keyLabel) => {
   lastKeyTime = currentTime;
 
   // Perform text-to-speech if enabled
-  if (textToSpeech) {
+  if (config.textToSpeech) {
     if ("speechSynthesis" in window) {
       const synth = window.speechSynthesis;
       const utterance = new SpeechSynthesisUtterance(keyLabel);
 
       // Cancel the current speech if enabled
-      if (textToSpeechCancelSpeechOnNewKey) {
+      if (config.textToSpeechCancelSpeechOnNewKey) {
         if (utterance && synth.speaking) {
           synth.cancel();
         }

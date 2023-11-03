@@ -3,19 +3,23 @@
 }
 
 .popup {
-  background-color: white;
+  max-width: 60%;
+  font-size: 20px;
+  font-family: "Tahoma, sans-serif";
+  font-weight: bold;
+  border-radius: 10px;
+  color: #ffffff;
+  background-color: #000000;
   padding: 10px;
   opacity: 0;
-  transition: opacity 0.5s ease-in-out;
   margin-bottom: 5px;
-  max-width: 70%; /* When the word should wrap (next line) */
+  transition: opacity 0.5s ease-in-out;
   word-wrap: break-word;
   display: inline-block;
-  border-radius: 0px;
 }
 
 .popup.active {
-  opacity: 1;
+  opacity: 0.9;
 }
 
 /* Positioning classes */
