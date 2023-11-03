@@ -1,14 +1,17 @@
 const { app, Tray, Menu, BrowserWindow, dialog, screen } = require("electron");
 const iohook = require("@mechakeys/iohook");
 const fs = require("fs");
-const keycode = require("keycode");
+const keycode = require("keycodes");
 const path = require("path");
 let config;
 let isCapturing = true;
 
+// Event handler when the application is ready
 app.on("ready", () => {
+  // Check if config.json exists
   if (fs.existsSync("./config.json")) {
     config = JSON.parse(fs.readFileSync("./config.json", "utf-8"));
+    // Create a default config.json if it doesn't exist
   } else {
     config = {
       showOnMonitor: "0",
@@ -28,7 +31,8 @@ app.on("ready", () => {
       showMouseCoordinates: false,
       onlyKeysWithModifiers: false,
       showSpaceAsUnicode: false,
-      textToSpeech: true,
+      textToSpeech: false,
+      textToSpeechCancelSpeechOnNewKey: false,
       position: "top-left",
       topOffset: "0",
       bottomOffset: "0",
@@ -48,7 +52,6 @@ app.on("ready", () => {
     showKeyboardClick,
     showMouseClick,
     showMouseCoordinates,
-    textToSpeech,
     position,
     topOffset,
     bottomOffset,
@@ -62,6 +65,7 @@ app.on("ready", () => {
   // Select the monitor in the config if available
   const selectedMonitor = displays[showOnMonitor] || screen.getPrimaryDisplay();
 
+  // Create the main window
   const mainWindow = new BrowserWindow({
     x: selectedMonitor.bounds.x,
     y: selectedMonitor.bounds.y,
@@ -73,37 +77,47 @@ app.on("ready", () => {
     alwaysOnTop: true,
     resizable: false,
     skipTaskbar: false,
-    kiosk: true,
     frame: false,
     webPreferences: {
+      devTools: true,
       nodeIntegration: true,
       contextIsolation: false,
     },
   });
 
-  //window.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 
+  // Disable mouse events (useful for transparent windows)
   mainWindow.setIgnoreMouseEvents(true);
+  // Load the index.html file
   mainWindow.loadFile("./index.html");
 
+  // Start listening to events by using iohook
   iohook.start();
 
+  // Event handler for keydown events
   if (showKeyboardClick) {
     iohook.on("keydown", (event) => {
-      if (convertSpecialKeys(event, config).length > 0) {
-        mainWindow.webContents.send(
-          "keydown",
-          convertSpecialKeys(event, config)
-        );
-      }
+      mainWindow.webContents.send("keydown", generateKeyLabel(event));
+      // if (generateKeyLabel(event, config).length > 0) {
+      //   mainWindow.webContents.send("keydown", generateKeyLabel(event, config));
+      // }
     });
+    // iohook.on("keydown", (event) => {
+    //   if (generateKeyLabel(event, config).length > 0) {
+    //     mainWindow.webContents.send("keydown", generateKeyLabel(event, config));
+    //   }
+    // });
   }
 
+  // Event handler for mouse events
   if (showMouseClick) {
+    // Show mouse coordinates
     if (!showMouseCoordinates) {
       iohook.on("mousedown", (event) => {
         mainWindow.webContents.send("keydown", ` MOUSE${event.button} `);
       });
+      // Show mouse button
     } else {
       iohook.on("mousedown", (event) => {
         mainWindow.webContents.send(
@@ -114,17 +128,41 @@ app.on("ready", () => {
     }
   }
 
+  // Create a tray icon
   let trayIcon;
 
+  // Set the tray icon based on the platform
   switch (process.platform) {
     case "win32":
-      trayIcon = path.join(__dirname, "assets", "icons", "windows", "icon.ico");
+      trayIcon = path.join(
+        __dirname,
+        "..",
+        "assets",
+        "icons",
+        "windows",
+        "icon.ico"
+      );
+      console.log(trayIcon);
       break;
     case "darwin":
-      trayIcon = path.join(__dirname, "assets", "icons", "mac", "icon.icns");
+      trayIcon = path.join(
+        __dirname,
+        "..",
+        "assets",
+        "icons",
+        "mac",
+        "icon.icns"
+      );
       break;
     default:
-      trayIcon = path.join(__dirname, "assets", "icons", "linux", "icon.png");
+      trayIcon = path.join(
+        __dirname,
+        "..",
+        "assets",
+        "icons",
+        "linux",
+        "icon.png"
+      );
   }
 
   // Create a tray icon
@@ -143,58 +181,67 @@ app.on("ready", () => {
   menuTray.setContextMenu(contextMenu);
 });
 
+/**
+ * Toggles the state of keystroke capturing.
+ * If capturing is on, it starts capturing.
+ * If capturing is off, it stops capturing.
+ */
 function toggleCapturing() {
+  // Toggle the state of capturing
   isCapturing = !isCapturing;
 
+  // If capturing is on, start capturing
   if (isCapturing) {
     iohook.start();
-  } else {
+  }
+  // If capturing is off, stop capturing
+  else {
     iohook.stop();
   }
 }
 
-function convertSpecialKeys(event, config) {
+/**
+ * Generate a key label based on the given event.
+ * @param {Object} event - The event object.
+ * @returns {string} - The generated key label.
+ */
+function generateKeyLabel(event) {
+  // Extract the key label from the event
   const keyLabel = keycode(event.rawcode);
-  const isModifierKey = config && config.onlyKeysWithModifiers;
-  const isShiftKey = event.shiftKey;
-  const isCtrlKey = event.ctrlKey;
-  const isAltKey = event.altKey;
-  const isMetaKey = event.metaKey;
-  const isSpaceKey = keyLabel === "space";
 
-  if (isModifierKey && !isCtrlKey && !isShiftKey && !isAltKey && !isMetaKey) {
+  // Extract the config options
+  const { onlyKeysWithModifiers, showSpaceAsUnicode } = config || {};
+
+  // Extract the modifier keys from the event
+  const { shiftKey, ctrlKey, altKey, metaKey } = event;
+
+  // Function to get the modifier key
+  const getModifier = () => {
+    if (ctrlKey) return " CTRL ";
+    if (shiftKey) return " SHIFT ";
+    if (altKey) return " ALT ";
+    if (metaKey) return " META ";
+    return "";
+  };
+
+  // Get the modifier key
+  const modifier = getModifier();
+
+  // If only keys with modifiers are required and no modifier key is pressed, return empty string
+  if (onlyKeysWithModifiers && !modifier) {
     return "";
   }
 
-  if (isCtrlKey && keyLabel !== undefined) {
-    return ` CTRL + ${keyLabel.toUpperCase()} `;
+  // If a modifier key is pressed, append it to the key label
+  if (modifier) {
+    return `${modifier} + ${keyLabel.toUpperCase()}`;
   }
 
-  if (isShiftKey) {
-    if (isModifierKey && keyLabel !== undefined) {
-      return ` SHIFT + ${keyLabel.toUpperCase()} `;
-    }
-
-    if (/^[a-zA-Z]$/.test(keyLabel)) {
-      return keyLabel.toUpperCase();
-    }
-
-    if (keyLabel !== undefined) {
-      return keyLabel;
-    }
+  // If the key label is "space", return the appropriate space character
+  if (keyLabel === "space") {
+    return showSpaceAsUnicode ? "␣" : " ";
   }
 
-  if (isAltKey && keyLabel !== undefined) {
-    return ` ALT + ${keyLabel.toUpperCase()} `;
-  }
-
-  if (isMetaKey && keyLabel !== undefined) {
-    return ` META + ${keyLabel.toUpperCase()} `;
-  }
-
-  if (isSpaceKey) {
-    return config && config.showSpaceAsUnicode ? "␣" : " ";
-  }
-
+  // If no special case applies, return the key label
   return keyLabel || "";
 }

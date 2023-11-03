@@ -3,13 +3,14 @@
   "version": "1.0.2",
   "icon": "./assets/icons/linux/icon.png",
   "description": "Yet Another Key Caster",
-  "main": "./main.js",
+  "main": "./src/main.js",
   "scripts": {
-    "start": "electron main.js",
-    "package:mac": "electron-packager . YAKC --platform=darwin --arch=x64 --out=build/mac --icon=./assets/icons/mac/icon.ico",
-    "package:windows": "electron-packager . YAKC --platform=win32 --arch=x64 --out=build/windows --icon=./assets/icons/windows/icon.ico",
-    "package:linux": "electron-packager . YAKC --platform=linux --arch=x64 --out=build/linux --icon=./assets/icons/linux/icon.png",
-    "package:all": "npm run package:mac && npm run package:win && npm run package:linux"
+    "start": "electron ./src/main.js",
+    "package:mac": "electron-packager . YAKC --ignore=test --platform=darwin --arch=x64 --out=build/mac --icon=./assets/icons/mac/icon.ico",
+    "package:windows": "electron-packager . YAKC --ignore=test --platform=win32 --arch=x64 --out=build/windows --icon=./assets/icons/windows/icon.ico",
+    "package:linux": "electron-packager . YAKC --ignore=test --platform=linux --arch=x64 --out=build/linux --icon=./assets/icons/linux/icon.png",
+    "package:all": "npm run package:mac && npm run package:win && npm run package:linux",
+    "test": "mocha test/*.js"
   },
   "repository": {
     "type": "git",
@@ -25,17 +26,19 @@
   },
   "homepage": "https://github.com/iammodev/YAKC#readme",
   "directories": {
+    "assets": "assets",
+    "src": "src",
     "test": "test"
   },
   "devDependencies": {
-    "electron-packager": "^17.1.2"
+    "chai": "^4.3.10",
+    "electron": "^25.9.3",
+    "electron-packager": "^17.1.2",
+    "mocha": "^10.2.0"
   },
   "dependencies": {
     "@mechakeys/iohook": "^1.1.1",
-    "electron": "^25.9.3",
-    "keycode": "^2.2.1",
-    "keycodemap": "^1.4.7",
-    "node-abi": "^3.51.0"
+    "keycodes": "^1.0.0"
   },
   "iohook": {
     "targets": [

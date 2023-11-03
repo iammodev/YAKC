@@ -1,0 +1,40 @@
+.popupContainer {
+  display: block;
+}
+
+.popup {
+  background-color: white;
+  padding: 10px;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  margin-bottom: 5px;
+  max-width: 70%; /* When the word should wrap (next line) */
+  word-wrap: break-word;
+  display: inline-block;
+  border-radius: 0px;
+}
+
+.popup.active {
+  opacity: 1;
+}
+
+/* Positioning classes */
+.top-left {
+  top: 0;
+  left: 0;
+}
+
+.top-right {
+  top: 0;
+  right: 0;
+}
+
+.bottom-left {
+  bottom: 0;
+  left: 0;
+}
+
+.bottom-right {
+  bottom: 0;
+  right: 0;
+}
