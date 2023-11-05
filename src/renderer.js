@@ -11,7 +11,6 @@ let config;
 
 // get the config data from main.js
 getYAKCAPI.onConfigData((getConfig) => {
-  console.log(getConfig);
   config = getConfig;
 });
 
@@ -23,12 +22,7 @@ getYAKCAPI.onConfigData((getConfig) => {
 window.onload = () => {
   // Call the onRendererLoaded function from the YAKCAPI
   getYAKCAPI.onRendererLoaded();
-  console.log("hello");
 };
-
-window.addEventListener("keydown", (event) => {
-  console.log(event);
-});
 
 let debug = false; // Set to false to disable debugging
 

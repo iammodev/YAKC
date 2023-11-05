@@ -4,28 +4,60 @@
  * Date: 01/11/2023
  */
 
-const { app, Tray, Menu, ipcMain, BrowserWindow, screen } = require("electron");
+const {
+  app,
+  Tray,
+  Menu,
+  dialog,
+  ipcMain,
+  BrowserWindow,
+  screen,
+} = require("electron");
 const iohook = require("@mechakeys/iohook");
 const fs = require("fs");
 const path = require("path");
+const isSingleInstance = app.requestSingleInstanceLock();
 let config;
 let isCapturing = true;
+
+// Check if the app is already running
+if (!isSingleInstance) {
+  // If the app is already running, quit the app
+  app.quit();
+}
 
 // Gets called when the app is ready
 app.on("ready", () => {
   // Check if config.json exists
-  if (fs.existsSync("./config.json")) {
+  if (fs.existsSync(path.join(__dirname, "..", "config.json"))) {
     // Load config.json
-    config = JSON.parse(fs.readFileSync("./config.json", "utf-8"));
-  } else {
-    // if config.json doesn't exist, Create a default ./config.json based on ./src/defaultConfig.json
-    const getDefaultConfig = fs.readFileSync(
-      "./src/defaultConfig.json",
-      "utf-8"
+    config = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "..", "config.json"), "utf-8")
     );
-    // Create config.json (using data from defaultConfig.json)
-    config = JSON.parse(getDefaultConfig);
-    fs.writeFileSync("./config.json", JSON.stringify(config, null, 2));
+  } else {
+    // If config.json doesn't exist, create it based on defaultConfig.json
+    if (fs.existsSync(path.join(__dirname, "defaultConfig.json"))) {
+      const getDefaultConfig = fs.readFileSync(
+        path.join(__dirname, "defaultConfig.json"),
+        "utf-8"
+      );
+      // Create ./config.json (using data from ./src/defaultConfig.json)
+      config = JSON.parse(getDefaultConfig);
+      fs.writeFileSync(
+        path.join(__dirname, "..", "config.json"),
+        JSON.stringify(config, null, 2)
+      );
+    }
+  }
+
+  // If config.json is empty, show an error message and exit the app
+  if (!config) {
+    dialog.showErrorBox(
+      "Error",
+      "config.json not found, please contact the developer."
+    );
+    app.quit();
+    return;
   }
 
   // Get all available monitors
@@ -60,10 +92,10 @@ app.on("ready", () => {
   mainWindow.setIgnoreMouseEvents(true);
 
   // Load the index.html file
-  mainWindow.loadFile("./index.html");
+  mainWindow.loadFile(path.join(__dirname, "index.html"));
 
   // only for debugging
-  // mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 
   // Send the config.json to the renderer after window.onload event is triggered
   ipcMain.on("rendererLoaded", () => {
