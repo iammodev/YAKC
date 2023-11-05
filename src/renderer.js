@@ -1,3 +1,9 @@
+/**
+ * Title: Renderer API
+ * Credits: [Mo Devecioglu](https://github.com/iammodev/)
+ * Date: 01/11/2023
+ */
+
 // define custom YAKC API
 const getYAKCAPI = window.YAKCAPI;
 
@@ -17,7 +23,12 @@ getYAKCAPI.onConfigData((getConfig) => {
 window.onload = () => {
   // Call the onRendererLoaded function from the YAKCAPI
   getYAKCAPI.onRendererLoaded();
+  console.log("hello");
 };
+
+window.addEventListener("keydown", (event) => {
+  console.log(event);
+});
 
 let debug = false; // Set to false to disable debugging
 
@@ -65,7 +76,10 @@ function applyInitialStyles() {
  */
 getYAKCAPI.onClickEvent((keyLabel) => {
   const currentTime = Date.now();
-  if (!config) return;
+  if (!config) {
+    alert("failed to load config, please restart YAKC");
+    return;
+  }
 
   // Check if enough time has passed since the last key press
   if (currentTime - lastKeyTime > config.popupInactiveAfterSeconds * 1000) {

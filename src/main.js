@@ -1,7 +1,12 @@
+/**
+ * Title: YAKC - Yet Another Key Caster
+ * Credits: [Mo Devecioglu](https://github.com/iammodev/)
+ * Date: 01/11/2023
+ */
+
 const { app, Tray, Menu, ipcMain, BrowserWindow, screen } = require("electron");
 const iohook = require("@mechakeys/iohook");
 const fs = require("fs");
-const keycode = require("keycodes");
 const path = require("path");
 let config;
 let isCapturing = true;
@@ -51,13 +56,16 @@ app.on("ready", () => {
     },
   });
 
-  // Disable mouse events (useful for transparent windows)
+  // Disable mouse events (necessary for transparent window)
   mainWindow.setIgnoreMouseEvents(true);
 
   // Load the index.html file
   mainWindow.loadFile("./index.html");
 
-  // Send the config.json to the renderer after renderer onload event is triggered
+  // only for debugging
+  // mainWindow.webContents.openDevTools();
+
+  // Send the config.json to the renderer after window.onload event is triggered
   ipcMain.on("rendererLoaded", () => {
     mainWindow.webContents.send("configData", config);
   });
@@ -74,29 +82,31 @@ app.on("ready", () => {
 
   // Event handler for mouse events
   if (config.showMouseClick) {
-    // Show mouse coordinates
-    if (!config.showMouseCoordinates) {
-      iohook.on("mousedown", (event) => {
-        mainWindow.webContents.send("clickEvent", ` MOUSE${event.button} `);
-      });
-      // Show mouse button
-    } else {
+    // Show mouse with x, y coordinates
+    if (config.showMouseCoordinates) {
       iohook.on("mousedown", (event) => {
         mainWindow.webContents.send(
           "clickEvent",
           ` MOUSE${event.button} X: ${event.x} Y: ${event.y} `
         );
       });
+      // Show mouse button
+    } else {
+      iohook.on("mousedown", (event) => {
+        mainWindow.webContents.send("clickEvent", ` MOUSE${event.button} `);
+      });
     }
   }
 
-  // Set the tray icon based on the platform
+  // Create a tray icon
   const iconPath = path.join(__dirname, "..", "assets", "icons");
+  // Get the OS
   const platform = process.platform;
 
   // Create a tray icon
   let trayIcon;
 
+  // Set the tray icon based on the platform
   if (platform === "win32") {
     trayIcon = path.join(iconPath, "windows", "icon.ico");
   } else if (platform === "darwin") {
@@ -141,64 +151,94 @@ function toggleCapturing() {
 }
 
 /**
- * Generate a key label based on the given event.
+ * Generate a key label based on the given event and keyboard layout.
  * @param {Object} event - The event object.
- * @returns {string} - The generated key label.
+ * @returns {string} The generated key label.
  */
 function generateKeyLabel(event) {
-  // Extract the key label from the event
-  const keyLabel = keycode(event.rawcode);
+  // Load the keyboard layout based on the config.json
+  const currentLayout = loadKeyboardLayout(config.keyboardLayout.toLowerCase());
 
-  // Extract the config options
-  const { onlyKeysWithModifiers, showSpaceAsUnicode } = config || {};
+  // Extract necessary properties from the event object
+  const { shiftKey, ctrlKey, altKey, metaKey, rawcode } = event;
 
-  // Extract the modifier keys from the event
-  const { shiftKey, ctrlKey, altKey, metaKey } = event;
+  // Initialize an array to store modifiers and a string for key label
+  const modifiers = [];
+  let keyLabel = "";
 
-  return keyLabel;
-  // let getKeyMapper;
+  // Add modifiers to the array based on key states
+  if (ctrlKey) modifiers.push("CTRL");
+  if (altKey) modifiers.push("ALT");
+  if (shiftKey) modifiers.push("SHIFT");
+  if (metaKey) modifiers.push("META");
 
-  // if (fs.existsSync("./src/keyMapper.json")) {
-  //   getKeyMapper = fs.readFileSync("./src/keyMapper.json");
-  // }
+  // if shiftKey is true and rawcode is in currentLayout.shift
+  if (shiftKey && rawcode in currentLayout.shift) {
+    keyLabel = shiftKey ? currentLayout.shift[rawcode] : "";
+    // TODO: altKey for some keyboardLayouts necessary
+  } else if (rawcode in currentLayout.default) {
+    // push modifier(s) if pressed (as example: to return CTRL + ALT + H)
+    if (modifiers.length > 0) {
+      if (keyLabel !== currentLayout.default)
+        keyLabel = ` ${modifiers.join(" + ")} + ${currentLayout.default[
+          rawcode
+        ].toUpperCase()} `;
+    }
+    // if shiftKey is false and rawcode is in currentLayout.default
+    if (!shiftKey && !ctrlKey && !altKey && !metaKey) {
+      keyLabel = currentLayout.default[rawcode];
+    }
+    // if shiftKey is true and rawcode is in currentLayout.default return upper case
+    if (shiftKey) {
+      keyLabel = currentLayout.default[rawcode].toUpperCase();
+    }
+    // if Space is pressed, check config settings
+    if (keyLabel.toLocaleLowerCase() == "space") {
+      keyLabel = config.showSpaceAsUnicode ? "␣" : " ";
+    }
 
-  // // Function to get the modifier key
-  // for (keyLabel in getKeyMapper) {
-  //   if (getKeyMapper[mappedKey] === keyLabel) {
-  //     console.log(mappedKey);
-  //     return mappedKey;
-  //   }
-  // }
-
-  // Get the modifier key
-
-  // console.log(mappedKey);
-
-  // console.log(mappedKey[keyLabel]);
-
-  // If only keys with modifiers are required and no modifier key is pressed, return empty string
-  if (onlyKeysWithModifiers && !modifier) {
-    return "";
+    // Convert keyLabel to unicode
+    if (config.textToSymbols) {
+      const mapper = charToUnicodeMapper();
+      if (keyLabel.toLocaleLowerCase() in mapper) {
+        keyLabel = mapper[keyLabel.toLocaleLowerCase()];
+      }
+    }
   }
 
-  // If a modifier is pressed and keyLabel has alphabetic and numeric characters
-  // if (modifier && /^[a-zA-Z0-9]+$/.test(keyLabel)) {
-  //   // Check if keyLabel is already equal to the modifier key
-  //   if (keyLabel.toUpperCase() === modifier.trim()) {
-  //     return modifier.trim();
-  //   }
-  //   return `${modifier} + ${keyLabel.toUpperCase()}`;
-  // }
+  return keyLabel;
+}
+/**
+ * Loads the keyboard layout for a given language.
+ *
+ * @param {string} language - The language for which to load the keyboard layout.
+ * @return {Object} The keyboard layout object for the specified language.
+ */
+function loadKeyboardLayout(language) {
+  const languageFilePath = path.join(
+    __dirname,
+    "keyboardLayouts",
+    `${language}.js`
+  );
 
-  // // If the key label is "space", return the appropriate space character
-  // if (keyLabel === "space") {
-  //   return showSpaceAsUnicode ? "␣" : " ";
-  // }
+  if (fs.existsSync(languageFilePath)) {
+    const keyboardLayout = require(languageFilePath);
+    return keyboardLayout;
+  }
+  return {};
+}
 
-  // // If no special case applies, return the key label
-  // if (/^[a-zA-Z0-9]+$/.test(keyLabel)) {
-  //   return keyLabel;
-  // }
+/**
+ * Retrieves the character to Unicode mapping from a file or returns an empty object.
+ *
+ * @return {Object} The character to Unicode mapping or an empty object if the file does not exist.
+ */
+function charToUnicodeMapper() {
+  const charToUnicodeFilePath = path.join(__dirname, "charToUnicode.js");
 
-  // return "";
+  if (fs.existsSync(charToUnicodeFilePath)) {
+    const charToUnicode = require(charToUnicodeFilePath);
+    return charToUnicode;
+  }
+  return {};
 }

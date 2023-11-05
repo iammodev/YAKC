@@ -1,9 +1,12 @@
-// preload.js
-// communication from main.js to renderer.js
+/**
+ * Title: Communication from main.js to renderer.js
+ * Credits: [Mo Devecioglu](https://github.com/iammodev/)
+ * Date: 01/11/2023
+ */
+
 const { contextBridge, ipcRenderer } = require("electron");
 
 // create custom YAKC API
-// communication from main.js to renderer.js
 contextBridge.exposeInMainWorld("YAKCAPI", {
   // create Listener(s)
   onConfigData: makeListener("configData"),
@@ -11,6 +14,9 @@ contextBridge.exposeInMainWorld("YAKCAPI", {
   onRendererLoaded: rendererLoaded,
 });
 
+/**
+ * Sends a message to the main process to indicate that the renderer has loaded.
+ */
 function rendererLoaded() {
   ipcRenderer.send("rendererLoaded");
 }

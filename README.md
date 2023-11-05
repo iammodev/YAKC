@@ -53,6 +53,8 @@ git clone https://github.com/iammodev/YAKC.git
 
 The configuration file `config.json` allows you to customize the behavior of YAKC. Here are the available options:
 
+- `keyboardLayout`: Select Keyboard Layout. (options: english, german).
+
 - `showOnMonitor`: Specifies the monitor on which the pop-up text should be displayed. The value should be the index of the monitor (starting from 0).
 
 - `popupTextMaxWidthInPercentage`: Specifies the maximum width of the pop-up text as a percentage of the screen width.
@@ -87,6 +89,8 @@ The configuration file `config.json` allows you to customize the behavior of YAK
 
 - `showSpaceAsUnicode`: Show space as Unicode character (␣). Options: (true, false).
 
+- `textToSymbols`: Change some Keystrokes to Unicode Characters (example: Tab to ↹). Options: (true, false).
+
 - `textToSpeech`: Speak out loud every Keystroke. (perfect for blind people!). Options: (true, false).
 
 - `textToSpeechCancelSpeechOnNewKey`: Cancels current SpeechToText if new Keystroke pressed. Options: (true, false).
@@ -103,28 +107,35 @@ The configuration file `config.json` allows you to customize the behavior of YAK
 
 ## TODO:
 
+- [x] Reliable solution for all/common keyboard layouts
 - [ ] position (top-left, top-right, bottom-left, bottom-right)
 - [ ] topOffset, bottomOffset, leftOffset, rightOffset
 - [ ] GUI to easily configure at runtime
 - [ ] Drag and Drop the popup to desired position
 - [ ] Add hotkey for start/stop listening to keystrokes
-- [ ] Reliable solution for all/common keyboard layout's (please contact me if you have knowledge about this)
 - [ ] Add unit tests
 
 ## Related
 
 - [iohook](https://github.com/mechakeys/iohook) for capturing keyboard & mouse input.
-- [keycode](https://github.com/timoxley/keycode) for converting keycodes.
 
 ## Contributing
 
 Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
+
+### Everyone can contribute!
+
+We require an extensive collection of [Keyboard Layouts](./src/keyboardLayouts/) to accommodate a wide range of languages and input methods.
 
 ## Security Assurance
 
 YAKC is free and open source. YAKC operates independently without any network interactions. Your private information, including passwords, is never stored or shared by YAKC, guaranteeing your safety and privacy.
 
 **Please Exercise Caution**: When using YAKC for activities like presentation, recording or streaming, be mindful not to inadvertently share sensitive information. Always ensure your privacy and the security of any confidential data.
+
+## Buy me a coffee
+
+<a href="https://www.buymeacoffee.com/iammodev" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 37px !important;width: 170px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
 ## License
 
