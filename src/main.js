@@ -76,7 +76,6 @@ app.on("ready", () => {
     fullscreen: true,
     transparent: true,
     focusable: false,
-    alwaysOnTop: true,
     resizable: false,
     skipTaskbar: false,
     frame: false,
@@ -100,6 +99,9 @@ app.on("ready", () => {
   // Send the config.json to the renderer after window.onload event is triggered
   ipcMain.on("rendererLoaded", () => {
     mainWindow.webContents.send("configData", config);
+
+    // Make the window always on top at the 'screen-saver' level
+    mainWindow.setAlwaysOnTop(true, "screen-saver");
   });
 
   // Start listening to events by using iohook

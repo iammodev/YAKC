@@ -75,6 +75,11 @@ getYAKCAPI.onClickEvent((keyLabel) => {
     return;
   }
 
+  // If the key label is empty, do nothing
+  if (keyLabel.length == 0) {
+    return;
+  }
+
   // Check if enough time has passed since the last key press
   if (currentTime - lastKeyTime > config.popupInactiveAfterSeconds * 1000) {
     // Remove old popups if there are any
