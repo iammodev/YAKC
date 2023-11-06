@@ -17,6 +17,8 @@ const iohook = require("@mechakeys/iohook");
 const fs = require("fs");
 const path = require("path");
 const isSingleInstance = app.requestSingleInstanceLock();
+const activeWindow = require("active-win");
+
 let config;
 let isCapturing = true;
 
@@ -102,6 +104,11 @@ app.on("ready", () => {
 
     // Make the window always on top at the 'screen-saver' level
     mainWindow.setAlwaysOnTop(true, "screen-saver");
+
+    // Check if filter is enabled
+    if (config.filter) {
+      checkActiveProcess();
+    }
   });
 
   // Start listening to events by using iohook
@@ -275,4 +282,75 @@ function charToUnicodeMapper() {
     return charToUnicode;
   }
   return {};
+}
+
+/**
+ * This function checks the active process and starts or stops listening for keystrokes
+ * based on whether the process is in the filter list.
+ */
+async function checkActiveProcess() {
+  let filters = [];
+
+  try {
+    // Load the filter list from config.json
+    if (config.filterProcessName && Array.isArray(config.filterProcessName)) {
+      filters = config.filterProcessName.map((filter) => filter.toLowerCase());
+    }
+  } catch (error) {
+    console.error("Error loading config:", error);
+  }
+
+  while (true) {
+    try {
+      const currentWindow = await activeWindow();
+
+      if (currentWindow && currentWindow.owner && currentWindow.owner.path) {
+        const processPath = currentWindow.owner.path;
+        const currentProcess =
+          getProcessNameFromPath(processPath).toLowerCase();
+
+        // Check if the active process is in the filter list
+        if (filters.includes(currentProcess)) {
+          // Start listening for keystrokes
+          iohook.start();
+        } else {
+          // Stop listening for keystrokes
+          iohook.stop();
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+
+    // Wait for X seconds before checking again
+    await new Promise((resolve) =>
+      setTimeout(resolve, config.filterCheckEverySecond * 1000)
+    );
+  }
+}
+
+/**
+ * This function extracts the process name from a given path.
+ *
+ * @param {string} path - The path from which to extract the process name.
+ * @returns {string} - The process name extracted from the path.
+ */
+function getProcessNameFromPath(path) {
+  // Split the path into parts using the path separator
+  const pathParts = path.split(getPathSeparator());
+
+  // The process name is the last part of the path
+  const processName = pathParts[pathParts.length - 1];
+
+  // Return the process name
+  return processName;
+}
+
+/**
+ * Function to get the path separator based on the platform
+ * @returns {string} - The path separator ('\\' for win32, '/' for others)
+ */
+function getPathSeparator() {
+  // Check the platform
+  return process.platform === "win32" ? "\\" : "/";
 }

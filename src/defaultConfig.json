@@ -24,5 +24,7 @@
   "topOffset": "0",
   "bottomOffset": "0",
   "leftOffset": "0",
-  "rightOffset": "0"
+  "filter": false,
+  "filterProcessName": ["App1.exe", "app2.exe"],
+  "filterCheckEverySecond": "0.5"
 }

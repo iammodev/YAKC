@@ -22,6 +22,11 @@ https://github.com/iammodev/YAKC/assets/89686923/61ebf7db-5171-4d5d-997b-59efd30
 - Keystroke display (**Modifiers only**, **Keystroke2Unicode**)
 - **Text-to-speech** for each keystroke (perfect for blind people)
 
+### User Security
+
+- **Automatic**: **Start** capturing keystrokes when **selected process** is focused.
+- **Manual**: **Right-click** the tray icon to **toggle** keystroke capturing.
+
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) installed on your system.
@@ -62,65 +67,76 @@ git clone https://github.com/iammodev/YAKC.git
 
 3. run executable
 
+## Buy me a coffee
+
+<a href="https://www.buymeacoffee.com/iammodev" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 37px !important;width: 170px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+
 ## Configuration
 
 The configuration file `config.json` allows you to customize the behavior of YAKC. Here are the available options:
 
-- `keyboardLayout`: Select Keyboard Layout. (options: english, german).
+- `keyboardLayout`: Select Keyboard Layout. (options: english, german)
 
-- `showOnMonitor`: Specifies the monitor on which the pop-up text should be displayed. The value should be the index of the monitor (starting from 0).
+- `showOnMonitor`: Specifies the monitor on which the pop-up text should be displayed. The value should be the index of the monitor (starting from 0)
 
-- `popupTextMaxWidthInPercentage`: Specifies the maximum width of the pop-up text as a percentage of the screen width.
+- `popupTextMaxWidthInPercentage`: Specifies the maximum width of the pop-up text as a percentage of the screen width
 
-- `popupOpacity`: Opacity of the popup text. Range: ("0.0" - "1").
+- `popupOpacity`: Opacity of the popup text. Range: "0.0" - "1"
 
-- `popupFadeInSeconds`: Duration of Fade effect for the popup text.
+- `popupFadeInSeconds`: Duration of Fade effect for the popup text
 
-- `popupRemoveAfterSeconds`: Remove inactive popup after X seconds.
+- `popupRemoveAfterSeconds`: Remove inactive popup after X seconds
 
-- `popupInactiveAfterSeconds`: After X seconds, a new popup will be created upon key/mouse press.
+- `popupInactiveAfterSeconds`: After X seconds, a new popup will be created upon key/mouse press
 
-- `popupFontSize`: Font size of popup text.
+- `popupFontSize`: Font size of popup text
 
-- `popupFontColor`: Font color of popup text.
+- `popupFontColor`: Font color of popup text
 
-- `popupFontFamily`: Font Family for the text.
+- `popupFontFamily`: Font Family for the text
 
-- `popupFontWeight`: Font weight of popup text.
+- `popupFontWeight`: Font weight of popup text
 
-- `popupBorderRadius`: Corner border radius. Use "0" for sharp corners.
+- `popupBorderRadius`: Corner border radius. Use "0" for sharp corners
 
-- `popupBackgroundColor`: Background color of popup text.
+- `popupBackgroundColor`: Background color of popup text
 
-- `showMouseClick`: Show mouse clicks. Options: true, false.
+- `showMouseClick`: Show mouse clicks. Options: true, false
 
-- `showMouseCoordinates`: Show mouse coordinates. Options: true, false.
+- `showMouseCoordinates`: Show mouse coordinates. Options: true, false
 
-- `showKeyboardClick`: Show Keyboard clicks. Options: true, false.
+- `showKeyboardClick`: Show Keyboard clicks. Options: true, false
 
-- `onlyKeysWithModifiers`: Show only keys with modifiers. Options: (true, false).
+- `onlyKeysWithModifiers`: Show only keys with modifiers. Options: true, false
 
-- `showSpaceAsUnicode`: Show space as Unicode character (␣). Options: (true, false).
+- `showSpaceAsUnicode`: Show space as Unicode character (␣). Options: true, false
 
-- `textToSymbols`: Change some Keystrokes to Unicode Characters (example: Tab to ↹). Options: (true, false).
+- `textToSymbols`: Change some Keystrokes to Unicode Characters (example: Tab to ↹). Options: true, false
 
-- `textToSpeech`: Speak out loud every Keystroke. (perfect for blind people!). Options: (true, false).
+- `textToSpeech`: Speak out loud every Keystroke. (perfect for blind people!). Options: true, false
 
-- `textToSpeechCancelSpeechOnNewKey`: Cancels current SpeechToText if new Keystroke pressed. Options: (true, false).
+- `textToSpeechCancelSpeechOnNewKey`: Cancels current SpeechToText if new Keystroke pressed. Options: true, false
 
-- `position`: Position of popup on screen. Options: "top-left", "top-right", "bottom-left", and "bottom-right".
+- `position`: Position of popup on screen. Options: "top-left", "top-right", "bottom-left", and "bottom-right"
 
-- `topOffset`: Top offset of the popup text in pixels.
+- `topOffset`: Top offset of the popup text in pixels
 
-- `bottomOffset`: Bottom offset of the pop-up text in pixels.
+- `bottomOffset`: Bottom offset of the pop-up text in pixels
 
-- `leftOffset`: Left offset of the pop-up text in pixels.
+- `leftOffset`: Left offset of the pop-up text in pixels
 
-- `rightOffset`: Right offset of the pop-up text in pixels.
+- `rightOffset`: Right offset of the pop-up text in pixels
+
+- `filter`: Whether to enable the filter function. Options: true, false
+
+- `filterProcessName`: Process Name(s) to start listening to any keystrokes when process is focused. Options: ["app1.exe, app2.exe"]
+
+- `filterCheckEverySecond`: How often to check if active window includes the `filter` Process(es)
 
 ## TODO:
 
 - [x] Reliable solution for all/common keyboard layouts
+- [x] Improve **user security** to **prevent** the display of **sensitive information**.
 - [ ] position (top-left, top-right, bottom-left, bottom-right)
 - [ ] topOffset, bottomOffset, leftOffset, rightOffset
 - [ ] GUI to easily configure at runtime
@@ -131,6 +147,7 @@ The configuration file `config.json` allows you to customize the behavior of YAK
 ## Related
 
 - [iohook](https://github.com/mechakeys/iohook) for capturing keyboard & mouse input.
+- [active-win](https://github.com/sindresorhus/active-win) to get metadata about the focused process.
 
 ## Contributing
 
@@ -145,10 +162,6 @@ We require an extensive collection of [Keyboard Layouts](./src/keyboardLayouts/)
 YAKC is free and open source. YAKC operates independently without any network interactions. Your private information, including passwords, is never stored or shared by YAKC, guaranteeing your safety and privacy.
 
 **Please Exercise Caution**: When using YAKC for activities like presentation, recording or streaming, be mindful not to inadvertently share sensitive information. Always ensure your privacy and the security of any confidential data.
-
-## Buy me a coffee
-
-<a href="https://www.buymeacoffee.com/iammodev" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 37px !important;width: 170px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
 ## License
 

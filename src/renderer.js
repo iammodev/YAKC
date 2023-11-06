@@ -268,31 +268,3 @@ function logAction(message, color) {
     console.log(`%c${message}`, `color: ${color}`);
   }
 }
-
-//TODO:
-// // initiaalize keyboardAPI to listen to keystrokes
-// // Get the Keyboard object from the navigator object.
-// const getKeyboard = navigator.keyboard;
-
-// // Get the KeyboardLayoutMap object by awaiting the getLayoutMap() method.
-// getKeyboard.getLayoutMap().then((keyboardLayoutMap) => {
-//   // Add an event listener to the KeyboardLayoutMap object for the `keydown` event.
-//   document.addEventListener("keydown", (event) => {
-//     // Get the pressed key code.
-//     const pressedKeyCode = event.code;
-
-//     // Get the pressed key string.
-//     const pressedKeyString = keyboardLayoutMap.get(pressedKeyCode);
-
-//     // Log the pressed key string to the console.
-//     console.log("Pressed key:", pressedKeyString);
-//   });
-// });
-
-// // useful for the keyboardAPI
-
-// // if layout is changed this event is getting called. does not seem to be implemented (broken)
-// getKeyboard.addEventListener("layoutchange", function () {
-//   // Update user keyboard map settings
-//   console.log("layout changed");
-// });

@@ -1,6 +1,6 @@
 {
   "name": "yakc",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "icon": "./assets/icons/linux/icon.png",
   "description": "Yet Another Key Caster",
   "main": "./src/main.js",
@@ -37,7 +37,8 @@
     "mocha": "^10.2.0"
   },
   "dependencies": {
-    "@mechakeys/iohook": "^1.1.1"
+    "@mechakeys/iohook": "^1.1.1",
+    "active-win": "^8.1.1"
   },
   "iohook": {
     "targets": [

@@ -152,6 +152,8 @@ const keyboardLayout = {
     56: "(", // Digit8
     57: ")", // Digit9
     187: "*",
+    188: ";",
+    190: ":",
     191: "'",
     219: "?", // Minus
     220: "°", // Backquote
