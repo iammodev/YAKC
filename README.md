@@ -6,17 +6,21 @@ YAKC is an open-source Platform-independent Electron-based keystroke visualizer.
 
 ## Features
 
-- Highly customizable style options
-- Flexible Positioning
-- Show Modifiers only
-- Toggle Keyboard/Mouse Click Visualization
-- Force popup next line on screen percentage
-- Smooth Transition (Fade In & Fade Out)
-- Timing Control
-- Spacebar as Unicode? ("␣")
-- Text-To-Speech (perfect for blind people)
-
 https://github.com/iammodev/YAKC/assets/89686923/61ebf7db-5171-4d5d-997b-59efd30218ec
+
+### Appereance
+
+- Display **Key** & **Mouse** **clicks** and **coordinates**
+- Choose between Keyboard layouts
+- Highly customizable (size, opacity, text/background color, font, boldness, cornered/pointy corners)
+- Position and Offset (**top-left**, **top-right**, **bottom-left**, **bottom-right**)
+- Smooth fade **transition** upon **remove**
+
+### Behaviour
+
+- Display on **any** selected **Monitor**
+- Keystroke display (**Modifiers only**, **Keystroke2Unicode**)
+- **Text-to-speech** for each keystroke (perfect for blind people)
 
 ## Prerequisites
 
@@ -35,11 +39,20 @@ git clone https://github.com/iammodev/YAKC.git
 
 3. `npm install`
 
+4. `cd ./node_modules/@mechakeys/iohook`
+
+5. `npm install`
+
+6. `node install.js`
+
+7. Go to [Usage](#usage)
+
 ## Usage
 
-1. Start the application: `npm start`
-2. The application will launch and display a system tray icon.
-3. Upon pressing on any key, a popup will appear.
+1. Make sure you are in folder ./YAKC/
+2. Start the application: `npm start`
+3. The application will launch and display a system tray icon.
+4. Upon pressing on any key, a popup will appear.
 
 ## Build
 
