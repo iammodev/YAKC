@@ -73,7 +73,7 @@ git clone https://github.com/iammodev/YAKC.git
 
 ## Configuration
 
-The configuration file `config.json` allows you to customize the behavior of YAKC. Here are the available options:
+The configuration file `./resources/app/config.json` allows you to customize the behavior of YAKC. Here are the available options:
 
 - `keyboardLayout`: Select Keyboard Layout. (options: english, german)
 
