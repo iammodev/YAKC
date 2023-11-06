@@ -6,7 +6,7 @@ YAKC is an open-source Platform-independent Electron-based keystroke visualizer.
 
 ## Features
 
-https://github.com/iammodev/YAKC/assets/89686923/61ebf7db-5171-4d5d-997b-59efd30218ec
+![YAKC-edited](https://github.com/iammodev/YAKC/assets/89686923/1b650c0b-bf86-47f6-afad-cfc072eb59c9)
 
 ### Appereance
 
