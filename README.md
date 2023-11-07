@@ -2,7 +2,7 @@
 
 ![yakc-logo](https://github.com/iammodev/YAKC/assets/89686923/d776922e-ebb8-42b0-b49f-c516d52957ae)
 
-YAKC is an open-source Platform-independent Electron-based keystroke visualizer.
+**YAKC** is an **open-source** **cross-platform** **Key** & **Mouse** Click visualizer useful for **content creators, developers or presentations**!.
 
 ## Features
 
