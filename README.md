@@ -4,6 +4,10 @@
 
 **YAKC** is an **open-source** **cross-platform** **Key** & **Mouse** Click visualizer useful for **content creators, developers or presentations**!.
 
+# Big News!
+
+I decided to try to **switch** from [Electron](https://www.electronjs.org/) to [Tauri](https://tauri.app). So I'll try to get this done **quickly**. I don't even know if it's **possible** yet, we'll see, what **problems** I will have to **solve**. **Wish me luck**! (Date: 11/7/2023)
+
 ## Features
 
 ![YAKC-edited](https://github.com/iammodev/YAKC/assets/89686923/1b650c0b-bf86-47f6-afad-cfc072eb59c9)
