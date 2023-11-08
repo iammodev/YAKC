@@ -6,7 +6,7 @@
 
 # Big News!
 
-I decided to try to **migrate** from [Electron](https://www.electronjs.org/) to [NW.JS](https://nwjs.io). So I'll try to get this done **quickly**. I don't even know if it's **possible** yet, we'll see, what **problems** I will have to **solve**. **Wish me luck**! I am **LIVE** right now **[Twitch](https://www.twitch.tv/iammodev)** (Date: 11/8/2023).
+I decided to try to **migrate** from [Electron](https://www.electronjs.org/) to [Tauri](https://tauri.app). So I'll try to get this done **quickly**. I don't even know if it's **possible** yet, we'll see, what **problems** I will have to **solve**. **Wish me luck**! I am **LIVE** right now **[Twitch](https://www.twitch.tv/iammodev)** (Date: 11/8/2023).
 
 ## Features
 
