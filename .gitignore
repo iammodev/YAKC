@@ -1,28 +1,24 @@
-# Node.js
-node_modules/
-npm-debug.log
-
-# Editor/IDE specific
-.vscode/
-.idea/
-
-# Dependency directories
-jspm_packages/
-typings/
-
-# Output files
-dist/
-build/
+# Logs
+logs
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# OS generated files
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
-Thumbs.db
-
-# Project specific files/directories
-# Add any project-specific files or directories you want to exclude here
-
-# Environment variables
-.env
-.env.local
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

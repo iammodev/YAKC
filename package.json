@@ -1,57 +1,21 @@
 {
-  "name": "yakc",
-  "version": "1.0.4",
-  "icon": "./assets/icons/linux/icon.png",
-  "description": "Yet Another Key Caster",
-  "main": "./src/main.js",
+  "name": "yakc-v2",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "electron ./src/main.js",
-    "package:mac": "electron-packager . YAKC --ignore=test --platform=darwin --arch=x64 --out=build/mac --icon=./assets/icons/mac/icon.ico",
-    "package:windows": "electron-packager . YAKC --ignore=test --platform=win32 --arch=x64 --out=build/windows --icon=./assets/icons/windows/icon.ico",
-    "package:linux": "electron-packager . YAKC --ignore=test --platform=linux --arch=x64 --out=build/linux --icon=./assets/icons/linux/icon.png",
-    "package:all": "npm run package:mac && npm run package:win && npm run package:linux",
-    "test": "mocha test/*.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/iammodev/YAKC.git"
-  },
-  "keywords": [
-    "YAKC"
-  ],
-  "author": "IAMMODEV",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/iammodev/YAKC/issues"
-  },
-  "homepage": "https://github.com/iammodev/YAKC#readme",
-  "directories": {
-    "assets": "assets",
-    "src": "src",
-    "test": "test"
-  },
-  "devDependencies": {
-    "chai": "^4.3.10",
-    "electron": "^25.9.3",
-    "electron-packager": "^17.1.2",
-    "mocha": "^10.2.0"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
   },
   "dependencies": {
-    "@mechakeys/iohook": "^1.1.1",
-    "active-win": "^8.1.1"
+    "@tauri-apps/api": "^2.0.0-alpha.11",
+    "@tauri-apps/plugin-shell": "^2.0.0-alpha.3"
   },
-  "iohook": {
-    "targets": [
-      "node-108",
-      "electron-116"
-    ],
-    "platforms": [
-      "win32",
-      "darwin",
-      "linux"
-    ],
-    "arches": [
-      "x64"
-    ]
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0-alpha.17",
+    "vite": "^4.4.4",
+    "typescript": "^5.0.2"
   }
 }
