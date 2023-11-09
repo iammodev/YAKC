@@ -4,9 +4,9 @@
 
 **YAKC** is an **open-source** **cross-platform** **Key** & **Mouse** Click visualizer useful for **content creators, developers or presentations**!.
 
-# Big News!
+# Welcome to YAKC v2
 
-I decided to try to **migrate** from [Electron](https://www.electronjs.org/) to [Tauri](https://tauri.app). So I'll try to get this done **quickly**. I don't even know if it's **possible** yet, we'll see, what **problems** I will have to **solve**. **Wish me luck**! I am **LIVE** right now **[Twitch](https://www.twitch.tv/iammodev)** (Date: 11/8/2023).
+I decided to try to **migrate** from [Electron](https://www.electronjs.org/) to [Tauri](https://tauri.app). So I'll try to get this done **quickly**. **Wish me luck**! I am **LIVE** on **[Twitch](https://www.twitch.tv/iammodev)**
 
 ### Update! 11/9/2023
 
@@ -37,45 +37,13 @@ What does this mean: YAKC will be **smaller** then **~10MB**, **Performance** wi
 - **Automatic**: **Start** capturing keystrokes when **selected process** is focused.
 - **Manual**: **Right-click** the tray icon to **toggle** keystroke capturing.
 
-## Prerequisites
+## Prerequisites(TODO)
 
-- [Node.js](https://nodejs.org/) installed on your system.
-- [Electron](https://www.electronjs.org/) for building and running the application.
+## Installation(TODO)
 
-## Installation
+## Usage (TODO)
 
-1. Clone the repository to your local machine:
-
-```bash
-git clone https://github.com/iammodev/YAKC.git
-```
-
-2. `cd YAKC`
-
-3. `npm install`
-
-4. `cd ./node_modules/@mechakeys/iohook`
-
-5. `npm install`
-
-6. `node install.js`
-
-7. Go to [Usage](#usage)
-
-## Usage
-
-1. Make sure you are in folder ./YAKC/
-2. Start the application: `npm start`
-3. The application will launch and display a system tray icon.
-4. Upon pressing on any key, a popup will appear.
-
-## Build
-
-1. `npm install --save-dev electron-packager`
-
-2. `npm run package:windows` (Options: package:windows, package:mac, package:linux, package:all)
-
-3. run executable
+## Build (TODO)
 
 ## Buy me a coffee
 
@@ -156,10 +124,7 @@ The configuration file `./resources/app/config.json` allows you to customize the
 - [ ] Add hotkey for start/stop listening to keystrokes
 - [ ] Add unit tests
 
-## Related
-
-- [iohook](https://github.com/mechakeys/iohook) for capturing keyboard & mouse input.
-- [active-win](https://github.com/sindresorhus/active-win) to get metadata about the focused process.
+## Related (TODO)
 
 ## Contributing
 
