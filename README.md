@@ -8,6 +8,12 @@
 
 I decided to try to **migrate** from [Electron](https://www.electronjs.org/) to [Tauri](https://tauri.app). So I'll try to get this done **quickly**. I don't even know if it's **possible** yet, we'll see, what **problems** I will have to **solve**. **Wish me luck**! I am **LIVE** right now **[Twitch](https://www.twitch.tv/iammodev)** (Date: 11/8/2023).
 
+### Update! 11/9/2023
+
+Good News! I have made big progress in understanding Rust and I can say that YAKC **will** be **migrated** to [Tauri](https://tauri.app)!
+
+What does this mean: YAKC will be **smaller** then **~10MB**, **Performance** will be insanely **fast** without eating much **CPU/RAM**. I'll be **documenting** my progress on **[Twitch](https://www.twitch.tv/iammodev)**!
+
 ## Features
 
 ![YAKC-edited](https://github.com/iammodev/YAKC/assets/89686923/1b650c0b-bf86-47f6-afad-cfc072eb59c9)
