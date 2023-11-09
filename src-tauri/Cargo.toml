@@ -1,10 +1,10 @@
 [package]
 name = "yakc-v2"
-version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+version = "2.0.0"
+description = "YAKC - Yet Another Key Caster"
+authors = ["IAMMODEV"]
+license = "MIT"
+repository = "https://github.com/iammodev/YAKC"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -14,8 +14,9 @@ tauri-build = { version = "2.0.0-alpha", features = [] }
 
 [dependencies]
 tauri = { version = "2.0.0-alpha", features = [] }
-tauri-plugin-window = "2.0.0-alpha"
 tauri-plugin-shell = "2.0.0-alpha"
+active-win-pos-rs = "0.8.2"
+rdev = "0.5.3"
 serde_json = "1.0"
 
 [features]
