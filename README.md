@@ -12,7 +12,7 @@ I decided to try to **migrate** from [Electron](https://www.electronjs.org/) to 
 
 Good News! I have made big progress in understanding Rust and I can say that YAKC **will** be **migrated** to [Tauri](https://tauri.app)!
 
-What does this mean: YAKC will be **smaller** then **~10MB**, **Performance** will be insanely **fast** without eating much **CPU/RAM**. I'll be **documenting** my progress on **[Twitch](https://www.twitch.tv/iammodev)**!
+What does this mean: YAKC will be **smaller** than **~10MB**, **Performance** will be insanely **fast** without eating much **CPU/RAM**. I'll be **documenting** my progress on **[Twitch](https://www.twitch.tv/iammodev)**!
 
 ## Features
 
