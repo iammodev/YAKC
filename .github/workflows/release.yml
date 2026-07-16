@@ -25,10 +25,16 @@ jobs:
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
+        # Retry: the ARM package mirror (ports.ubuntu.com) is occasionally
+        # unreachable from the runners, which is transient.
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev \
-            librsvg2-dev patchelf libxkbcommon-dev libspeechd-dev
+          for attempt in 1 2 3 4 5; do
+            sudo apt-get update && sudo apt-get install -y \
+              libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf \
+              libxkbcommon-dev libspeechd-dev && exit 0
+            echo "apt attempt $attempt failed; retrying in 20s"; sleep 20
+          done
+          echo "apt failed after 5 attempts"; exit 1
 
       - uses: dtolnay/rust-toolchain@stable
 
