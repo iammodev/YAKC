@@ -15,8 +15,7 @@ jobs:
           - os: ubuntu-24.04-arm # Linux arm64
           - os: windows-latest # Windows x64
           - os: windows-11-arm # Windows arm64
-          - os: macos-13 # macOS x64
-          - os: macos-latest # macOS arm64
+          - os: macos-latest # macOS (Apple Silicon)
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

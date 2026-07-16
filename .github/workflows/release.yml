@@ -14,11 +14,22 @@ jobs:
       matrix:
         include:
           - os: ubuntu-22.04 # Linux x64: deb, rpm, AppImage
+            args: ""
+            rust-targets: ""
           - os: ubuntu-24.04-arm # Linux arm64
+            args: ""
+            rust-targets: ""
           - os: windows-latest # Windows x64: msi, nsis
+            args: ""
+            rust-targets: ""
           - os: windows-11-arm # Windows arm64
-          - os: macos-13 # macOS x64: dmg, app
-          - os: macos-latest # macOS arm64
+            args: ""
+            rust-targets: ""
+          # One universal macOS build runs on both Intel and Apple Silicon,
+          # so no (retired) Intel runner is needed.
+          - os: macos-latest
+            args: "--target universal-apple-darwin"
+            rust-targets: "aarch64-apple-darwin,x86_64-apple-darwin"
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -37,6 +48,8 @@ jobs:
           echo "apt failed after 5 attempts"; exit 1
 
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust-targets }}
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -50,3 +63,4 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: "YAKC ${{ github.ref_name }}"
           releaseDraft: true
+          args: ${{ matrix.args }}
