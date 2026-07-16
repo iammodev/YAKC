@@ -6,7 +6,31 @@ on:
       - "v*"
 
 jobs:
+  # Create the draft release once, up front, so the parallel build jobs all
+  # upload to the same release instead of each creating a duplicate draft.
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      release_id: ${{ steps.create.outputs.result }}
+    steps:
+      - uses: actions/github-script@v7
+        id: create
+        with:
+          script: |
+            const { data } = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: process.env.GITHUB_REF_NAME,
+              name: `YAKC ${process.env.GITHUB_REF_NAME}`,
+              draft: true,
+              prerelease: false,
+            });
+            return data.id;
+
   bundle:
+    needs: create-release
     permissions:
       contents: write
     strategy:
@@ -60,7 +84,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: "YAKC ${{ github.ref_name }}"
-          releaseDraft: true
+          releaseId: ${{ needs.create-release.outputs.release_id }}
           args: ${{ matrix.args }}
+
+  # Fail the run visibly if any platform bundle failed.
+  finish:
+    needs: bundle
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All platform bundles uploaded to the draft release."
