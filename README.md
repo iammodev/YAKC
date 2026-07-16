@@ -43,15 +43,26 @@ The Electron version needed Node.js, a native `iohook` build per platform, and s
 
 ## Installation
 
+### Package managers
+
+| Platform | Command |
+|---|---|
+| **Windows** (winget) | `winget install iammodev.YAKC` |
+| **Arch Linux** (AUR) | `yay -S yakc` |
+
+### Direct download
+
 Grab a package from the [releases page](https://github.com/iammodev/YAKC/releases) and install it the usual way for your OS:
 
 | Platform | Package | Install |
 |---|---|---|
 | Windows | `.msi` / `-setup.exe` | double-click, next-next-finish |
-| macOS | `.dmg` | open, drag YAKC to Applications |
+| macOS (Intel + Apple Silicon) | `_universal.dmg` | open, drag YAKC to Applications |
 | Debian/Ubuntu | `.deb` | double-click, or `sudo apt install ./YAKC_*.deb` |
 | Fedora/openSUSE | `.rpm` | double-click, or `sudo dnf install ./YAKC-*.rpm` |
 | Any Linux | `.AppImage` | make executable, run |
+
+Both x64 and ARM64 builds are provided for Windows and Linux; the macOS `.dmg` is a universal binary that runs on both Intel and Apple Silicon.
 
 **That's the whole installation — everything else is prompted.** On first launch YAKC checks what it needs and simply asks:
 
