@@ -1,0 +1,44 @@
+[package]
+name = "yakc"
+version = "2.0.0"
+description = "YAKC - Yet Another Key Caster"
+authors = ["IAMMODEV"]
+license = "MIT"
+repository = "https://github.com/iammodev/YAKC"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = ["tray-icon", "image-png", "macos-private-api"] }
+tauri-plugin-single-instance = "2"
+tauri-plugin-dialog = "2"
+tts = "0.26"
+active-win-pos-rs = "0.9"
+
+# Windows & macOS: global hook via the OS APIs (WH_KEYBOARD_LL / CGEventTap),
+# with OS-native key-to-character translation for any keyboard language.
+[target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
+rdev = "0.5"
+
+# Linux: read /dev/input directly so capture works identically on X11 and
+# Wayland; xkbcommon translates keycodes per the active layout.
+[target.'cfg(target_os = "linux")'.dependencies]
+evdev = "0.13"
+xkbcommon = "0.8"
+# Fetch the compositor's exact keymap (wl_keyboard) so any layout the user
+# configured in their desktop settings is honored on Wayland.
+wayland-client = "0.31"
+libc = "0.2"
+
+# macOS: raise the overlay to screen-saver window level (above fullscreen apps).
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1

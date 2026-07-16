@@ -1,0 +1,113 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+header {
+  padding: 12px 16px 0;
+}
+
+header h1 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+header p {
+  margin: 0 0 8px;
+  font-size: 12px;
+  opacity: 0.7;
+  overflow-wrap: anywhere;
+}
+
+main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 16px;
+}
+
+h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+  margin: 18px 0 6px;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(140px, 220px);
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+
+.field label {
+  font-size: 13px;
+}
+
+.field .hint {
+  display: block;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.field input[type="text"],
+.field input[type="number"],
+.field select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px 7px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.field input[type="checkbox"] {
+  justify-self: start;
+  width: 18px;
+  height: 18px;
+}
+
+.field input[type="color"] {
+  width: 48px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+}
+
+footer button {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}
+
+footer button:hover {
+  background: #2f6fe0;
+}
+
+#status {
+  font-size: 12px;
+  opacity: 0.8;
+}
