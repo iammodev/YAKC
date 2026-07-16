@@ -4,6 +4,12 @@
 
 **YAKC** is an **open-source**, **cross-platform** **key & mouse click visualizer** for **content creators, developers and presentations** — now rewritten in [Tauri](https://tauri.app) + Rust.
 
+<p align="center">
+  <img src="https://github.com/iammodev/YAKC/assets/89686923/1b650c0b-bf86-47f6-afad-cfc072eb59c9" alt="YAKC showing keystrokes and mouse clicks as customizable on-screen popups in real time" width="760">
+</p>
+
+<p align="center"><em>Your keys and clicks, shown live on screen — fully customizable.</em></p>
+
 ## Why the rewrite?
 
 The Electron version needed Node.js, a native `iohook` build per platform, and shipped a full browser runtime. The Tauri rewrite is a single small binary (~10 MB) with:
@@ -25,7 +31,7 @@ The Electron version needed Node.js, a native `iohook` build per platform, and s
 - **Settings GUI** — configure everything at runtime, applies live
 - **Global hotkey** to toggle capturing (default `Ctrl+Alt+Y`)
 - Tray icon: toggle capturing, open settings, quit
-- **Text-to-speech** for each keystroke (great for blind users)
+- **Text-to-speech** — hear each keystroke spoken aloud; adds an audible layer that's handy for accessibility, screencasts, tutorials and language practice
 - **Process filter**: only capture while selected apps are focused
 
 ## How it works per platform
