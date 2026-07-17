@@ -2,7 +2,17 @@
 
 ![yakc-logo](https://github.com/iammodev/YAKC/assets/89686923/d776922e-ebb8-42b0-b49f-c516d52957ae)
 
-**YAKC** is an **open-source**, **cross-platform** **key & mouse click visualizer** for **content creators, developers and presentations** — now rewritten in [Tauri](https://tauri.app) + Rust.
+<p align="center">
+  <a href="https://github.com/iammodev/YAKC/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/iammodev/YAKC?color=2ea043"></a>
+  <img alt="Platforms: Windows, macOS, Linux" src="https://img.shields.io/badge/platforms-Windows%20%C2%B7%20macOS%20%C2%B7%20Linux%20(X11%20%26%20Wayland)-2ea043">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/github/license/iammodev/YAKC?color=2ea043"></a>
+  <img alt="Total downloads" src="https://img.shields.io/github/downloads/iammodev/YAKC/total?color=2ea043">
+  <a href="https://github.com/iammodev/YAKC/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/iammodev/YAKC?color=2ea043"></a>
+</p>
+
+**YAKC (Yet Another Key Caster)** is a **free, open-source, cross-platform keystroke visualizer and mouse-click overlay**. It shows the keys you press and the mouse buttons you click as clean, customizable **on-screen popups**, in real time — ideal for **screencasts, live streams (OBS, Twitch, YouTube), video tutorials, presentations, screen recordings and pair programming**.
+
+One tool for **Windows, macOS and Linux (X11 _and_ Wayland)** that shows **any keyboard layout or language automatically** — a modern, actively maintained alternative to platform-locked keycasters like **KeyCastr** (macOS only), **Carnac** (Windows only), **screenkey** and **showmethekey** (Linux only).
 
 <p align="center">
   <img src="https://github.com/iammodev/YAKC/assets/89686923/1b650c0b-bf86-47f6-afad-cfc072eb59c9" alt="YAKC showing keystrokes and mouse clicks as customizable on-screen popups in real time" width="760">
@@ -33,6 +43,27 @@ The Electron version needed Node.js, a native `iohook` build per platform, and s
 - Tray icon: toggle capturing, open settings, quit
 - **Text-to-speech** — hear each keystroke spoken aloud; adds an audible layer that's handy for accessibility, screencasts, tutorials and language practice
 - **Process filter**: only capture while selected apps are focused
+
+## YAKC vs. other keystroke visualizers
+
+Most keycasters only run on **one** operating system. YAKC is the one that works **everywhere** — including **Wayland**, where most Linux options still fall short.
+
+| | **YAKC** | KeyCastr | Carnac | screenkey | showmethekey |
+|---|:---:|:---:|:---:|:---:|:---:|
+| **Windows** | ✅ | — | ✅ | — | — |
+| **macOS** (Intel + Apple Silicon) | ✅ | ✅ | — | — | — |
+| **Linux · X11** | ✅ | — | — | ✅ | ✅ |
+| **Linux · Wayland** | ✅ | — | — | ⚠️ limited | ✅ |
+| **Mouse clicks** | ✅ | — | — | — | ✅ |
+| **Any keyboard language, automatic** | ✅ | ✅ | — | ⚠️ | ✅ |
+| **Editor-style "text" mode** (Backspace deletes) | ✅ | — | — | — | — |
+| **Text-to-speech** | ✅ | — | — | — | — |
+| **Runtime settings GUI** | ✅ | ✅ | ✅ | — | ✅ |
+| **Open source** | ✅ MIT | ✅ | ⚠️ inactive | ✅ | ✅ |
+
+<sub>Reflects each project's primary, out-of-the-box support; details vary by version and community forks. Corrections welcome via PR.</sub>
+
+**In short:** if you want a single keystroke display that looks and behaves the same on Windows, macOS **and** Linux (X11 and Wayland), in any language, with mouse clicks and a live settings UI, YAKC is currently the most complete choice.
 
 ## How it works per platform
 
@@ -132,6 +163,35 @@ Settings live in `config.json` — edit them via the Settings window or by hand:
 | `filter` / `filterProcessName` / `filterCheckEverySecond` | Capture only while listed processes are focused |
 | `toggleCaptureHotkey` | Global capture toggle, e.g. `Ctrl+Alt+Y` (needs ≥ 1 modifier) |
 
+## FAQ
+
+**What is YAKC?**
+YAKC (Yet Another Key Caster) is a free, open-source **keystroke visualizer**: it shows the keys you press and the mouse buttons you click as on-screen popups, so viewers of a screencast, live stream or presentation can see exactly what you're doing.
+
+**Which operating systems does YAKC support?**
+Windows, macOS and Linux — including **both X11 and Wayland**. The macOS build is a universal binary (Intel + Apple Silicon); Windows and Linux ship x64 and ARM64 builds.
+
+**Is there a keystroke visualizer that works on Wayland?**
+Yes — YAKC. It reads input via `evdev` and translates it with your compositor's own keymap, so it works on Wayland compositors such as GNOME (Mutter) and KDE (KWin), where many older keycasters don't.
+
+**What's a good KeyCastr, Carnac or screenkey alternative?**
+YAKC. KeyCastr is macOS-only, Carnac is Windows-only, and screenkey is Linux/X11-only — YAKC gives you the same on-screen keystroke display on **all** of them, with one configuration and one consistent look.
+
+**Does it show mouse clicks too?**
+Yes — mouse buttons (and optional coordinates) alongside your keystrokes.
+
+**Does it work with OBS, for streaming and screen recording?**
+Yes. YAKC draws a transparent, click-through, always-on-top overlay that OBS, other capture tools and screen recorders pick up like any other on-screen content.
+
+**Does it support my keyboard language or layout?**
+Yes, automatically. Characters come straight from your operating system (or, on Wayland, your compositor), so QWERTY, QWERTZ, AZERTY, Turkish, Cyrillic, Greek and more all work with zero configuration.
+
+**Is YAKC free and private?**
+Yes. It's MIT-licensed, fully offline, and never stores or transmits anything you type.
+
+**How do I install it?**
+`winget install iammodev.YAKC` on Windows, `yay -S yakc` on Arch Linux, or grab an installer for your OS from the [releases page](https://github.com/iammodev/YAKC/releases). See [Installation](#installation).
+
 ## TODO
 
 - [x] Reliable solution for all/common keyboard layouts *(OS-native translation)*
@@ -161,3 +221,7 @@ YAKC is free and open source. YAKC operates independently without any network in
 ## License
 
 This project is licensed under the `MIT` License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+<sub><b>Also known as / related searches:</b> keystroke visualizer · key caster · keycast · on-screen keyboard display · show keys on screen · keystroke overlay · keypress display · mouse click visualizer · screencast keystrokes · OBS keystroke display · streaming key overlay · presentation key display · Wayland keystroke visualizer · cross-platform keycaster · KeyCastr alternative · Carnac alternative · screenkey alternative · showmethekey alternative · keystroke display for Windows, macOS and Linux.</sub>
