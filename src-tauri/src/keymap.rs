@@ -236,6 +236,78 @@ pub fn format_mouse(button: u8, coords: Option<(i32, i32)>, config: &Config) -> 
     format!(" MOUSE{button} ")
 }
 
+/// A known key that can be overridden, exposed to the settings UI.
+#[derive(Debug, Clone, Serialize)]
+pub struct KnownKey {
+    pub id: String,
+    pub default_label: String,
+    pub group: String,
+}
+
+/// Returns the complete list of keys users can override via `keyLabelOverrides`.
+pub fn known_keys() -> Vec<KnownKey> {
+    let mut keys = Vec::new();
+
+    // Modifier keys (hardcoded in format_key, not in NAMED_KEYS).
+    for (id, label) in [
+        ("ctrl", "CTRL"),
+        ("alt", "ALT"),
+        ("shift", "SHIFT"),
+        ("meta", "META"),
+    ] {
+        keys.push(KnownKey {
+            id: id.into(),
+            default_label: label.into(),
+            group: "modifier".into(),
+        });
+    }
+
+    for (id, display, _symbol) in NAMED_KEYS {
+        let group = if *id == "space"
+            || *id == "enter"
+            || *id == "backspace"
+            || *id == "delete"
+            || *id == "insert"
+            || *id == "tab"
+        {
+            "editing"
+        } else if *id == "arrowleft"
+            || *id == "arrowright"
+            || *id == "arrowup"
+            || *id == "arrowdown"
+            || *id == "home"
+            || *id == "end"
+            || *id == "pageup"
+            || *id == "pagedown"
+        {
+            "navigation"
+        } else if id.starts_with("numpad") {
+            "numpad"
+        } else if id.starts_with('f') && id.len() <= 3 {
+            // f1–f12
+            "function"
+        } else if *id == "escape"
+            || *id == "capslock"
+            || *id == "numlock"
+            || *id == "scrolllock"
+            || *id == "pause"
+            || *id == "printscreen"
+            || *id == "contextmenu"
+        {
+            "system"
+        } else {
+            "other"
+        };
+        keys.push(KnownKey {
+            id: id.to_string(),
+            default_label: display.to_string(),
+            group: group.into(),
+        });
+    }
+
+    keys
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

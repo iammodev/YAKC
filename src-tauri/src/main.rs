@@ -16,6 +16,7 @@ use tauri::tray::TrayIconBuilder;
 use tauri::{AppHandle, Emitter, Manager, State};
 
 use config::{Config, SharedConfig};
+use keymap::KnownKey;
 
 /// Whether keystroke capture is currently active (toggled by tray, hotkey and
 /// the process filter).
@@ -39,6 +40,11 @@ fn get_pending_errors(pending: State<input::PendingErrors>) -> Vec<String> {
         .lock()
         .map(|mut buffer| std::mem::take(&mut *buffer))
         .unwrap_or_default()
+}
+
+#[tauri::command]
+fn get_known_keys() -> Vec<KnownKey> {
+    keymap::known_keys()
 }
 
 #[tauri::command]
@@ -81,6 +87,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             get_config,
             get_config_path,
+            get_known_keys,
             get_pending_errors,
             save_config
         ])

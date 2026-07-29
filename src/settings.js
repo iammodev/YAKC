@@ -51,6 +51,7 @@ const SECTIONS = [
       { key: "textToSymbols", type: "bool", label: "Special keys as symbols", hint: "e.g. Tab → ↹, Backspace → ⌫" },
       { key: "toggleCaptureHotkey", type: "text", label: "Toggle-capture hotkey", hint: "e.g. Ctrl+Alt+Y" },
       { key: "keyboardLayout", type: "text", label: "Keyboard layout override", hint: "Linux only, empty = auto-detect (e.g. us, de, tr); needs restart" },
+      { key: "keyLabelOverrides", type: "link", label: "Key label overrides", hint: "Customize display text for any key (modifiers, arrows, F-keys, …)" },
     ],
   },
   {
@@ -131,6 +132,14 @@ function buildForm() {
           case "list":
             input.type = "text";
             input.value = (config[field.key] || []).join(", ");
+            break;
+          case "link":
+            input = document.createElement("button");
+            input.className = "link-btn";
+            input.textContent = "Edit";
+            input.addEventListener("click", () => {
+              window.location.href = "key_labels.html";
+            });
             break;
           default:
             input.type = "text";

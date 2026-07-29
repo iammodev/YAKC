@@ -14,8 +14,19 @@ header {
   padding: 12px 16px 0;
 }
 
+#backLink {
+  font-size: 13px;
+  text-decoration: none;
+  opacity: 0.7;
+}
+
+#backLink:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
 header h1 {
-  margin: 0 0 4px;
+  margin: 8px 0 4px;
   font-size: 18px;
 }
 
@@ -23,7 +34,6 @@ header p {
   margin: 0 0 8px;
   font-size: 12px;
   opacity: 0.7;
-  overflow-wrap: anywhere;
 }
 
 main {
@@ -32,7 +42,11 @@ main {
   padding: 8px 16px;
 }
 
-h2 {
+.key-group {
+  margin-bottom: 16px;
+}
+
+.key-group h2 {
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -40,27 +54,33 @@ h2 {
   margin: 18px 0 6px;
 }
 
-.field {
+.key-row {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(140px, 220px);
+  grid-template-columns: 120px 20px 100px 1fr;
   align-items: center;
-  gap: 10px;
-  padding: 5px 0;
-}
-
-.field label {
+  gap: 8px;
+  padding: 4px 0;
   font-size: 13px;
 }
 
-.field .hint {
-  display: block;
-  font-size: 11px;
-  opacity: 0.6;
+.key-id {
+  font-family: "SF Mono", "Cascadia Code", "Fira Code", monospace;
+  font-size: 12px;
+  opacity: 0.7;
+  text-align: right;
 }
 
-.field input[type="text"],
-.field input[type="number"],
-.field select {
+.key-arrow {
+  text-align: center;
+  opacity: 0.4;
+  font-size: 12px;
+}
+
+.key-default {
+  font-size: 13px;
+}
+
+.key-override {
   width: 100%;
   box-sizing: border-box;
   padding: 5px 7px;
@@ -71,18 +91,9 @@ h2 {
   font: inherit;
 }
 
-.field input[type="checkbox"] {
-  justify-self: start;
-  width: 18px;
-  height: 18px;
-}
-
-.field input[type="color"] {
-  width: 48px;
-  height: 28px;
-  padding: 0;
-  border: none;
-  background: none;
+.key-override::placeholder {
+  opacity: 0.4;
+  font-style: italic;
 }
 
 footer {
@@ -110,20 +121,4 @@ footer button:hover {
 #status {
   font-size: 12px;
   opacity: 0.8;
-}
-
-.link-btn {
-  justify-self: start;
-  padding: 6px 14px;
-  border-radius: 6px;
-  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.link-btn:hover {
-  background: color-mix(in srgb, currentColor 8%, transparent);
 }
