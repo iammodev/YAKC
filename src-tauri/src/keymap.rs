@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::Serialize;
 
 use crate::config::Config;
@@ -145,7 +147,10 @@ pub fn format_key(
     config: &Config,
 ) -> Option<String> {
     let base: String = if let Some(id) = named {
-        if id == "space" {
+        // Key-label override takes priority over everything else.
+        if let Some(overridden) = config.key_label_overrides.get(id) {
+            overridden.clone()
+        } else if id == "space" {
             if config.show_space_as_unicode {
                 "␣".to_string()
             } else {
@@ -174,18 +179,42 @@ pub fn format_key(
     }
 
     if has_combo_mods {
-        let mut parts: Vec<&str> = Vec::new();
+        let mut parts: Vec<String> = Vec::new();
         if mods.ctrl {
-            parts.push("CTRL");
+            parts.push(
+                config
+                    .key_label_overrides
+                    .get("ctrl")
+                    .cloned()
+                    .unwrap_or_else(|| "CTRL".to_string()),
+            );
         }
         if mods.alt {
-            parts.push("ALT");
+            parts.push(
+                config
+                    .key_label_overrides
+                    .get("alt")
+                    .cloned()
+                    .unwrap_or_else(|| "ALT".to_string()),
+            );
         }
         if mods.shift {
-            parts.push("SHIFT");
+            parts.push(
+                config
+                    .key_label_overrides
+                    .get("shift")
+                    .cloned()
+                    .unwrap_or_else(|| "SHIFT".to_string()),
+            );
         }
         if mods.meta {
-            parts.push("META");
+            parts.push(
+                config
+                    .key_label_overrides
+                    .get("meta")
+                    .cloned()
+                    .unwrap_or_else(|| "META".to_string()),
+            );
         }
         Some(format!(
             " {} + {} ",
@@ -403,5 +432,120 @@ mod tests {
         config.show_mouse_coordinates = true;
         assert_eq!(format_mouse(1, Some((10, 20)), &config), " MOUSE1 X: 10 Y: 20 ");
         assert_eq!(format_mouse(2, None, &config), " MOUSE2 ");
+    }
+
+    #[test]
+    fn named_key_override_takes_priority() {
+        let config = Config {
+            key_label_overrides: HashMap::from([("backspace".into(), "DEL".into())]),
+            ..Config::default()
+        };
+        let label = format_key(
+            None,
+            Some("backspace"),
+            &mods(false, false, false, false),
+            &config,
+        );
+        assert_eq!(label.as_deref(), Some("DEL"));
+    }
+
+    #[test]
+    fn named_key_override_survives_text_to_symbols() {
+        // Override should win even when text_to_symbols is on.
+        let config = Config {
+            text_to_symbols: true,
+            key_label_overrides: HashMap::from([("enter".into(), "⏎".into())]),
+            ..Config::default()
+        };
+        let label = format_key(
+            None,
+            Some("enter"),
+            &mods(false, false, false, false),
+            &config,
+        );
+        assert_eq!(label.as_deref(), Some("⏎"));
+    }
+
+    #[test]
+    fn modifier_combo_uses_override() {
+        let config = Config {
+            key_label_overrides: HashMap::from([("meta".into(), "MOD".into())]),
+            ..Config::default()
+        };
+        let label = format_key(
+            Some("h"),
+            None,
+            &mods(false, false, false, true),
+            &config,
+        );
+        assert_eq!(label.as_deref(), Some(" MOD + H "));
+    }
+
+    #[test]
+    fn modifier_combo_overrides_all_four() {
+        let config = Config {
+            key_label_overrides: HashMap::from([
+                ("ctrl".into(), "C".into()),
+                ("alt".into(), "A".into()),
+                ("shift".into(), "S".into()),
+                ("meta".into(), "M".into()),
+            ]),
+            ..Config::default()
+        };
+        let label = format_key(
+            Some("x"),
+            None,
+            &mods(true, true, true, true),
+            &config,
+        );
+        assert_eq!(label.as_deref(), Some(" C + A + S + M + X "));
+    }
+
+    #[test]
+    fn partial_modifier_override_leaves_others_unchanged() {
+        // Only override meta; ctrl, alt, shift should keep their defaults.
+        let config = Config {
+            key_label_overrides: HashMap::from([("meta".into(), "SUPER".into())]),
+            ..Config::default()
+        };
+        let label = format_key(
+            Some("k"),
+            None,
+            &mods(true, true, false, true),
+            &config,
+        );
+        assert_eq!(label.as_deref(), Some(" CTRL + ALT + SUPER + K "));
+    }
+
+    #[test]
+    fn override_does_not_affect_unrelated_named_keys() {
+        let config = Config {
+            key_label_overrides: HashMap::from([("meta".into(), "MOD".into())]),
+            ..Config::default()
+        };
+        let label = format_key(
+            None,
+            Some("tab"),
+            &mods(false, false, false, false),
+            &config,
+        );
+        assert_eq!(label.as_deref(), Some("↹")); // default symbol
+    }
+
+    #[test]
+    fn named_key_override_in_combo() {
+        let config = Config {
+            key_label_overrides: HashMap::from([
+                ("backspace".into(), "DEL".into()),
+            ]),
+            ..Config::default()
+        };
+        let label = format_key(
+            None,
+            Some("backspace"),
+            &mods(true, false, false, false),
+            &config,
+        );
+        assert_eq!(label.as_deref(), Some(" CTRL + DEL "));
     }
 }

@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
 
@@ -60,6 +61,10 @@ pub struct Config {
     /// "text": popups behave like a text editor — only typed characters show,
     /// Backspace deletes. "raw": every key shows (modifiers, ⌫, arrows, …).
     pub display_mode: String,
+    /// Override display text for any key. Key = internal key id
+    /// ("backspace", "f1", "meta", "ctrl", …), value = custom display text.
+    /// E.g. {"meta": "MOD"} shows "MOD" instead of "META" in combos.
+    pub key_label_overrides: HashMap<String, String>,
 }
 
 impl Config {
@@ -102,6 +107,7 @@ impl Default for Config {
             filter_check_every_second: 0.5,
             toggle_capture_hotkey: "Ctrl+Alt+Y".into(),
             display_mode: "text".into(),
+            key_label_overrides: HashMap::new(),
         }
     }
 }
