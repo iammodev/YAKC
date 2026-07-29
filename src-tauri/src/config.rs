@@ -53,6 +53,9 @@ pub struct Config {
     /// Overall scale of the mouse/gamepad widgets (1.0 = default size).
     #[serde(deserialize_with = "lenient_f64")]
     pub device_widget_scale: f64,
+    /// Show the overlay on this screen. Turn off to display only in the OBS
+    /// browser source (so it isn't captured twice or seen by you locally).
+    pub show_overlay_on_screen: bool,
     pub only_keys_with_modifiers: bool,
     pub show_space_as_unicode: bool,
     pub text_to_symbols: bool,
@@ -80,6 +83,12 @@ pub struct Config {
     /// ("backspace", "f1", "meta", "ctrl", …), value = custom display text.
     /// E.g. {"meta": "MOD"} shows "MOD" instead of "META" in combos.
     pub key_label_overrides: HashMap<String, String>,
+    /// Serve the overlay over HTTP for use as an OBS Browser source. Opt-in;
+    /// changing this needs an app restart to start/stop the server.
+    pub obs_server_enabled: bool,
+    /// Port the OBS browser-source server listens on (localhost).
+    #[serde(deserialize_with = "lenient_u16")]
+    pub obs_server_port: u16,
 }
 
 impl Config {
@@ -113,6 +122,7 @@ impl Default for Config {
             mouse_movement_sensitivity: 1.0,
             mouse_movement_decay_seconds: 0.4,
             device_widget_scale: 1.0,
+            show_overlay_on_screen: true,
             only_keys_with_modifiers: false,
             show_space_as_unicode: false,
             text_to_symbols: true,
@@ -129,6 +139,8 @@ impl Default for Config {
             toggle_capture_hotkey: "Ctrl+Alt+Y".into(),
             display_mode: "text".into(),
             key_label_overrides: HashMap::new(),
+            obs_server_enabled: false,
+            obs_server_port: 7238,
         }
     }
 }
@@ -150,6 +162,10 @@ fn lenient_f64<'de, D: Deserializer<'de>>(deserializer: D) -> Result<f64, D::Err
 
 fn lenient_usize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<usize, D::Error> {
     Ok(lenient_f64(deserializer)?.max(0.0) as usize)
+}
+
+fn lenient_u16<'de, D: Deserializer<'de>>(deserializer: D) -> Result<u16, D::Error> {
+    Ok(lenient_f64(deserializer)?.clamp(0.0, 65535.0) as u16)
 }
 
 /// Path of the active config file: a config.json next to the executable wins

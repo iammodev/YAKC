@@ -25,11 +25,23 @@ pub fn create(app: &AppHandle, config: &Config) -> tauri::Result<WebviewWindow> 
 
     window.set_ignore_cursor_events(true)?;
     place_on_monitor(app, &window, config);
+    apply_visibility(&window, config);
 
     #[cfg(target_os = "macos")]
     raise_above_fullscreen(&window);
 
     Ok(window)
+}
+
+/// Shows or hides the on-screen overlay per `showOverlayOnScreen`. When hidden,
+/// the OBS browser source still streams — letting users go OBS-only.
+fn apply_visibility(window: &WebviewWindow, config: &Config) {
+    if config.show_overlay_on_screen {
+        let _ = window.show();
+        let _ = window.set_always_on_top(true);
+    } else {
+        let _ = window.hide();
+    }
 }
 
 /// Moves/sizes the overlay to fill the monitor selected by `showOnMonitor`.
@@ -53,6 +65,7 @@ pub fn place_on_monitor(app: &AppHandle, window: &WebviewWindow, config: &Config
 pub fn apply_placement(app: &AppHandle, config: &Config) {
     if let Some(window) = app.get_webview_window("overlay") {
         place_on_monitor(app, &window, config);
+        apply_visibility(&window, config);
     }
 }
 

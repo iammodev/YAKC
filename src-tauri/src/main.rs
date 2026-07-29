@@ -4,6 +4,7 @@ mod config;
 mod filter;
 mod input;
 mod keymap;
+mod obs_server;
 mod overlay;
 mod setup;
 mod tts;
@@ -58,6 +59,11 @@ fn save_config(
     }
     config::save(&app, &config)?;
     overlay::apply_placement(&app, &config);
+    // Start the OBS server if this save just enabled it (no restart needed).
+    obs_server::ensure_started(&app, &config);
+    if let Ok(json) = serde_json::to_string(&config) {
+        obs_server::broadcast(&app, "config-updated", &json);
+    }
     app.emit("config-updated", &config).map_err(|e| e.to_string())
 }
 
@@ -100,6 +106,10 @@ fn main() {
             app.manage(shared.clone());
             app.manage(capturing.clone());
             app.manage(input::PendingErrors::default());
+
+            // OBS browser-source server (opt-in; starts on demand from settings).
+            app.manage(Arc::new(obs_server::ObsHub::new()));
+            obs_server::ensure_started(&handle, &cfg);
 
             overlay::create(&handle, &cfg)?;
             overlay::create_settings(&handle)?;

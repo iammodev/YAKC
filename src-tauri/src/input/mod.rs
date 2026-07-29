@@ -262,6 +262,11 @@ fn spawn_device_emitter(app: AppHandle, config: SharedConfig, state: Arc<Mutex<D
                 ..snapshot.clone()
             };
             let _ = app.emit_to("overlay", "device-state", &snapshot);
+            if crate::obs_server::has_clients(&app) {
+                if let Ok(json) = serde_json::to_string(&snapshot) {
+                    crate::obs_server::broadcast(&app, "device-state", &json);
+                }
+            }
         }
     });
 }
@@ -418,6 +423,11 @@ pub fn start(app: AppHandle, config: SharedConfig, capturing: Arc<AtomicBool>) {
             let Some(op) = op else { continue };
 
             let _ = app.emit_to("overlay", "click-event", &op);
+            if crate::obs_server::has_clients(&app) {
+                if let Ok(json) = serde_json::to_string(&op) {
+                    crate::obs_server::broadcast(&app, "click-event", &json);
+                }
+            }
 
             if cfg.text_to_speech {
                 if let keymap::PopupOp::Append { text } = &op {
@@ -494,6 +504,9 @@ pub fn report_error(app: &AppHandle, message: String) {
     }
     if let Some(overlay) = app.get_webview_window("overlay") {
         let _ = overlay.emit("yakc-error", &message);
+    }
+    if let Ok(json) = serde_json::to_string(&message) {
+        crate::obs_server::broadcast(app, "yakc-error", &json);
     }
 }
 

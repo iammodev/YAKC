@@ -71,6 +71,14 @@ const SECTIONS = [
     ],
   },
   {
+    title: "OBS / browser source",
+    fields: [
+      { key: "obsServerEnabled", type: "bool", label: "Enable OBS browser source", hint: "Serves the overlay at http://localhost:<port>/overlay for an OBS Browser source (transparent, live). Enabling starts it immediately; changing the port needs a restart." },
+      { key: "obsServerPort", type: "number", label: "Server port", min: 1, max: 65535, step: 1, hint: "Default 7238" },
+      { key: "showOverlayOnScreen", type: "bool", label: "Show overlay on this screen", hint: "Turn off to display only in the OBS browser source (avoids showing twice or seeing it locally)." },
+    ],
+  },
+  {
     title: "Text-to-speech",
     fields: [
       { key: "textToSpeech", type: "bool", label: "Speak every keystroke" },
