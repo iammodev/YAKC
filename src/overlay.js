@@ -181,6 +181,92 @@ function showNotice(message) {
   notice._timer = setTimeout(() => (notice.hidden = true), 30000);
 }
 
+// Drag-to-position: the overlay becomes interactive (Rust drops click-through),
+// the user drags a handle to where popups should anchor, then Saves (persists
+// position=top-left + offsets) or Cancels. Only ever runs in the native
+// overlay — the OBS browser page never receives the "overlay-move" event.
+let moveState = null;
+
+function enterMoveMode() {
+  if (moveState) return;
+
+  const backdrop = document.createElement("div");
+  backdrop.id = "moveBackdrop";
+
+  const handle = document.createElement("div");
+  handle.id = "moveHandle";
+  handle.textContent = "Drag me — this is where your keys will appear";
+
+  // Start where the popups currently anchor.
+  const rect = popupArea.getBoundingClientRect();
+  const startX = Math.min(Math.max(rect.left || 40, 0), window.innerWidth - 260);
+  const startY = Math.min(Math.max(rect.top || 40, 0), window.innerHeight - 80);
+  handle.style.left = `${startX}px`;
+  handle.style.top = `${startY}px`;
+
+  const toolbar = document.createElement("div");
+  toolbar.id = "moveToolbar";
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "Save position";
+  saveBtn.className = "move-save";
+  const cancelBtn = document.createElement("button");
+  cancelBtn.textContent = "Cancel";
+  cancelBtn.className = "move-cancel";
+  toolbar.append(saveBtn, cancelBtn);
+
+  let dragging = false;
+  let offX = 0;
+  let offY = 0;
+  const onDown = (e) => {
+    dragging = true;
+    offX = e.clientX - handle.offsetLeft;
+    offY = e.clientY - handle.offsetTop;
+    e.preventDefault();
+  };
+  const onMove = (e) => {
+    if (!dragging) return;
+    const x = Math.min(Math.max(e.clientX - offX, 0), window.innerWidth - handle.offsetWidth);
+    const y = Math.min(Math.max(e.clientY - offY, 0), window.innerHeight - handle.offsetHeight);
+    handle.style.left = `${x}px`;
+    handle.style.top = `${y}px`;
+  };
+  const onUp = () => {
+    dragging = false;
+  };
+
+  handle.addEventListener("mousedown", onDown);
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+
+  saveBtn.addEventListener("click", async () => {
+    config.position = "top-left";
+    config.leftOffset = Math.round(handle.offsetLeft);
+    config.topOffset = Math.round(handle.offsetTop);
+    config.rightOffset = 0;
+    config.bottomOffset = 0;
+    try {
+      await core.invoke("save_config", { config });
+    } catch {
+      // config-updated will not fire; leaving move mode still restores state.
+    }
+    await core.invoke("end_overlay_move");
+  });
+  cancelBtn.addEventListener("click", () => core.invoke("end_overlay_move"));
+
+  document.body.append(backdrop, handle, toolbar);
+  moveState = { backdrop, handle, toolbar, onMove, onUp };
+}
+
+function exitMoveMode() {
+  if (!moveState) return;
+  window.removeEventListener("mousemove", moveState.onMove);
+  window.removeEventListener("mouseup", moveState.onUp);
+  moveState.backdrop.remove();
+  moveState.handle.remove();
+  moveState.toolbar.remove();
+  moveState = null;
+}
+
 async function init() {
   popupArea = document.getElementById("popupArea");
   config = await core.invoke("get_config");
@@ -192,6 +278,9 @@ async function init() {
     applyConfigStyles();
   });
   await tauriEvent.listen("yakc-error", (e) => showNotice(e.payload));
+  await tauriEvent.listen("overlay-move", (e) =>
+    e.payload ? enterMoveMode() : exitMoveMode()
+  );
 
   // Errors raised before this page was listening (e.g. missing input-device
   // permission detected during the first device scan).

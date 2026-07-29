@@ -48,6 +48,19 @@ fn get_known_keys() -> Vec<KnownKey> {
     keymap::known_keys()
 }
 
+/// Enters drag-to-position mode on the overlay (temporary non-click-through).
+#[tauri::command]
+fn begin_overlay_move(app: AppHandle) {
+    overlay::begin_move(&app);
+}
+
+/// Leaves drag-to-position mode, restoring click-through.
+#[tauri::command]
+fn end_overlay_move(app: AppHandle, state: State<SharedConfig>) {
+    let config = state.read().map(|cfg| cfg.clone()).unwrap_or_default();
+    overlay::end_move(&app, &config);
+}
+
 #[tauri::command]
 fn save_config(
     app: AppHandle,
@@ -95,7 +108,9 @@ fn main() {
             get_config_path,
             get_known_keys,
             get_pending_errors,
-            save_config
+            save_config,
+            begin_overlay_move,
+            end_overlay_move
         ])
         .setup(|app| {
             let handle = app.handle().clone();
@@ -120,10 +135,13 @@ fn main() {
             // Tray
             let toggle_item =
                 MenuItem::with_id(app, "toggle", "Toggle Capturing", true, None::<&str>)?;
+            let move_item =
+                MenuItem::with_id(app, "move", "Move overlay position", true, None::<&str>)?;
             let settings_item =
                 MenuItem::with_id(app, "settings", "Settings…", true, None::<&str>)?;
             let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&toggle_item, &settings_item, &quit_item])?;
+            let menu =
+                Menu::with_items(app, &[&toggle_item, &move_item, &settings_item, &quit_item])?;
 
             let tray_capturing = capturing.clone();
             TrayIconBuilder::with_id("main")
@@ -133,6 +151,7 @@ fn main() {
                 .show_menu_on_left_click(true)
                 .on_menu_event(move |app, event| match event.id.as_ref() {
                     "toggle" => toggle_capturing(&tray_capturing),
+                    "move" => overlay::begin_move(app),
                     "settings" => overlay::show_settings(app),
                     "quit" => app.exit(0),
                     _ => {}

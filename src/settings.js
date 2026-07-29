@@ -25,6 +25,7 @@ const SECTIONS = [
     fields: [
       { key: "showOnMonitor", type: "number", label: "Monitor index", hint: "0 = first monitor", min: 0, step: 1 },
       { key: "position", type: "select", label: "Screen position", options: ["top-left", "top-center", "top-right", "center", "bottom-left", "bottom-center", "bottom-right"] },
+      { key: "moveOverlay", type: "action", label: "Drag to position", buttonLabel: "Drag on screen…", command: "begin_overlay_move", hint: "Opens a draggable handle on the overlay; drop it where you want, then Save." },
       { key: "topOffset", type: "number", label: "Top offset (px)" },
       { key: "bottomOffset", type: "number", label: "Bottom offset (px)" },
       { key: "leftOffset", type: "number", label: "Left offset (px)" },
@@ -165,6 +166,12 @@ function buildForm() {
               window.location.href = "key_labels.html";
             });
             break;
+          case "action":
+            input = document.createElement("button");
+            input.className = "link-btn";
+            input.textContent = field.buttonLabel || "Run";
+            input.addEventListener("click", () => core.invoke(field.command));
+            break;
           default:
             input.type = "text";
             input.value = config[field.key];
@@ -197,9 +204,10 @@ function collectForm() {
           .filter((s) => s.length > 0);
         break;
       case "link":
-        // Not an input — it links to another page. Leave the value from
-        // config untouched (spread above); collecting the button's empty
-        // string here would clobber keyLabelOverrides (a map).
+      case "action":
+        // Not inputs — a page link / a command button. Leave the config value
+        // untouched (spread above); collecting the button's empty string here
+        // would clobber real fields (e.g. keyLabelOverrides, a map).
         break;
       default:
         updated[key] = input.value;

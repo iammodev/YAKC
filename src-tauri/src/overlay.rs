@@ -1,5 +1,5 @@
 use tauri::{
-    AppHandle, Manager, PhysicalPosition, PhysicalSize, WebviewUrl, WebviewWindow,
+    AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize, WebviewUrl, WebviewWindow,
     WebviewWindowBuilder,
 };
 
@@ -77,6 +77,27 @@ pub fn create_settings(app: &AppHandle) -> tauri::Result<WebviewWindow> {
         .min_inner_size(420.0, 400.0)
         .visible(false)
         .build()
+}
+
+/// Enters "move" mode: makes the overlay interactive (not click-through) so the
+/// user can drag the popup anchor to a new spot. Paired with `end_move`.
+pub fn begin_move(app: &AppHandle) {
+    if let Some(window) = app.get_webview_window("overlay") {
+        let _ = window.show();
+        let _ = window.set_ignore_cursor_events(false);
+        let _ = window.set_always_on_top(true);
+        let _ = window.set_focus();
+        let _ = window.emit("overlay-move", true);
+    }
+}
+
+/// Leaves "move" mode: restores click-through and the configured visibility.
+pub fn end_move(app: &AppHandle, config: &Config) {
+    if let Some(window) = app.get_webview_window("overlay") {
+        let _ = window.set_ignore_cursor_events(true);
+        apply_visibility(&window, config);
+        let _ = window.emit("overlay-move", false);
+    }
 }
 
 pub fn show_settings(app: &AppHandle) {

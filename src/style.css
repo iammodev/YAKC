@@ -131,6 +131,56 @@ body {
   padding-bottom: 4px;
 }
 
+/* Drag-to-position mode (overlay.js): a dimmed, interactive layer with a
+   draggable handle and a Save/Cancel toolbar. */
+#moveBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 10;
+}
+
+#moveHandle {
+  position: fixed;
+  z-index: 12;
+  min-width: 220px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: rgba(59, 130, 246, 0.92);
+  color: #ffffff;
+  font: 14px/1.3 system-ui, sans-serif;
+  cursor: move;
+  user-select: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+#moveToolbar {
+  position: fixed;
+  z-index: 12;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+}
+
+#moveToolbar button {
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: none;
+  font: 14px system-ui, sans-serif;
+  cursor: pointer;
+  color: #ffffff;
+}
+
+#moveToolbar .move-save {
+  background: #22c55e;
+}
+
+#moveToolbar .move-cancel {
+  background: #6b7280;
+}
+
 /* Error/permission notice (e.g. missing input-device permission on Linux) */
 #notice {
   position: fixed;
