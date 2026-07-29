@@ -6,9 +6,23 @@
     <title>YAKC - Yet Another Key Caster</title>
     <link rel="stylesheet" href="style.css" />
     <script defer src="overlay.js"></script>
+    <script defer src="devices.js"></script>
   </head>
   <body>
     <div id="popupArea"></div>
+    <div id="deviceLayer" hidden>
+      <div id="mouseWidget" hidden>
+        <div id="mouseRing"><div id="mouseDot"></div></div>
+      </div>
+      <div id="gamepadWidget" hidden>
+        <div class="stick" id="leftStick"><div class="stick-dot"></div></div>
+        <div class="triggers">
+          <div class="trigger"><div class="trigger-fill" id="ltFill"></div><span>LT</span></div>
+          <div class="trigger"><div class="trigger-fill" id="rtFill"></div><span>RT</span></div>
+        </div>
+        <div class="stick" id="rightStick"><div class="stick-dot"></div></div>
+      </div>
+    </div>
     <div id="notice" hidden></div>
   </body>
 </html>

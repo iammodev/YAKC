@@ -1,3 +1,4 @@
+#[cfg(test)]
 use std::collections::HashMap;
 
 use serde::Serialize;
@@ -236,6 +237,71 @@ pub fn format_mouse(button: u8, coords: Option<(i32, i32)>, config: &Config) -> 
     format!(" MOUSE{button} ")
 }
 
+/// Scroll-wheel directions, as (id, default label). Ids are overridable via
+/// `keyLabelOverrides`, exactly like named keys.
+const SCROLL_KEYS: &[(&str, &str)] = &[
+    ("scrollup", "Scroll↑"),
+    ("scrolldown", "Scroll↓"),
+    ("scrollleft", "Scroll←"),
+    ("scrollright", "Scroll→"),
+];
+
+/// Gamepad buttons, as (id, default label). Shared with the gamepad backend.
+const GAMEPAD_BUTTONS: &[(&str, &str)] = &[
+    ("gp_a", "A"),
+    ("gp_b", "B"),
+    ("gp_x", "X"),
+    ("gp_y", "Y"),
+    ("gp_lb", "LB"),
+    ("gp_rb", "RB"),
+    ("gp_lt", "LT"),
+    ("gp_rt", "RT"),
+    ("gp_back", "BACK"),
+    ("gp_start", "START"),
+    ("gp_guide", "GUIDE"),
+    ("gp_ls", "L3"),
+    ("gp_rs", "R3"),
+    ("dpad_up", "D↑"),
+    ("dpad_down", "D↓"),
+    ("dpad_left", "D←"),
+    ("dpad_right", "D→"),
+];
+
+/// Resolves a label for an id, honoring `keyLabelOverrides` first, then the
+/// table default, then an uppercased fallback.
+fn labeled(id: &str, table: &[(&str, &str)], config: &Config) -> String {
+    if let Some(overridden) = config.key_label_overrides.get(id) {
+        return overridden.clone();
+    }
+    table
+        .iter()
+        .find(|(key, _)| *key == id)
+        .map(|(_, label)| label.to_string())
+        .unwrap_or_else(|| id.to_uppercase())
+}
+
+/// Popup label for a scroll tick. `dy > 0` is up, `dx > 0` is right; the
+/// dominant axis wins.
+pub fn format_scroll(dx: f64, dy: f64, config: &Config) -> String {
+    let id = if dy.abs() >= dx.abs() {
+        if dy > 0.0 {
+            "scrollup"
+        } else {
+            "scrolldown"
+        }
+    } else if dx > 0.0 {
+        "scrollright"
+    } else {
+        "scrollleft"
+    };
+    format!(" {} ", labeled(id, SCROLL_KEYS, config))
+}
+
+/// Popup label for a gamepad button press.
+pub fn format_gamepad_button(id: &str, config: &Config) -> String {
+    format!(" {} ", labeled(id, GAMEPAD_BUTTONS, config))
+}
+
 /// A known key that can be overridden, exposed to the settings UI.
 #[derive(Debug, Clone, Serialize)]
 pub struct KnownKey {
@@ -302,6 +368,22 @@ pub fn known_keys() -> Vec<KnownKey> {
             id: id.to_string(),
             default_label: display.to_string(),
             group: group.into(),
+        });
+    }
+
+    for (id, label) in SCROLL_KEYS {
+        keys.push(KnownKey {
+            id: id.to_string(),
+            default_label: label.to_string(),
+            group: "mouse".into(),
+        });
+    }
+
+    for (id, label) in GAMEPAD_BUTTONS {
+        keys.push(KnownKey {
+            id: id.to_string(),
+            default_label: label.to_string(),
+            group: "gamepad".into(),
         });
     }
 
@@ -504,6 +586,44 @@ mod tests {
         config.show_mouse_coordinates = true;
         assert_eq!(format_mouse(1, Some((10, 20)), &config), " MOUSE1 X: 10 Y: 20 ");
         assert_eq!(format_mouse(2, None, &config), " MOUSE2 ");
+    }
+
+    #[test]
+    fn scroll_labels_pick_dominant_axis() {
+        let config = Config::default();
+        assert_eq!(format_scroll(0.0, 1.0, &config), " Scroll↑ ");
+        assert_eq!(format_scroll(0.0, -1.0, &config), " Scroll↓ ");
+        assert_eq!(format_scroll(1.0, 0.0, &config), " Scroll→ ");
+        assert_eq!(format_scroll(-1.0, 0.0, &config), " Scroll← ");
+        // Vertical wins ties / mixed input.
+        assert_eq!(format_scroll(0.5, 1.0, &config), " Scroll↑ ");
+    }
+
+    #[test]
+    fn scroll_and_gamepad_labels_honor_overrides() {
+        let config = Config {
+            key_label_overrides: HashMap::from([
+                ("scrollup".into(), "WHEEL-UP".into()),
+                ("gp_a".into(), "✕".into()),
+            ]),
+            ..Config::default()
+        };
+        assert_eq!(format_scroll(0.0, 2.0, &config), " WHEEL-UP ");
+        assert_eq!(format_gamepad_button("gp_a", &config), " ✕ ");
+        // Non-overridden buttons keep their default label.
+        assert_eq!(format_gamepad_button("gp_lt", &config), " LT ");
+        assert_eq!(format_gamepad_button("dpad_up", &config), " D↑ ");
+    }
+
+    #[test]
+    fn known_keys_include_scroll_and_gamepad_groups() {
+        let keys = known_keys();
+        assert!(keys
+            .iter()
+            .any(|k| k.id == "scrollup" && k.group == "mouse"));
+        assert!(keys
+            .iter()
+            .any(|k| k.id == "gp_a" && k.group == "gamepad" && k.default_label == "A"));
     }
 
     #[test]

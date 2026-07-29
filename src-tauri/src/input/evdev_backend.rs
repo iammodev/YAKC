@@ -19,6 +19,14 @@ use super::{BackendIssue, Mods, RawInput};
 
 const RESCAN_INTERVAL: Duration = Duration::from_secs(3);
 
+/// Raw event forwarded from a device reader thread to the translator thread.
+/// Keys need xkb translation (which owns non-Send state); relative-axis events
+/// (mouse movement / scroll) are forwarded straight through.
+enum RawEvent {
+    Key(evdev::KeyCode, i32),
+    Rel(evdev::RelativeAxisCode, i32),
+}
+
 pub fn spawn_listener(
     tx: Sender<RawInput>,
     layout_override: Option<String>,
@@ -26,7 +34,7 @@ pub fn spawn_listener(
 ) {
     // xkb::State is not Send, so device reader threads forward raw
     // (keycode, value) pairs to one translator thread that owns the state.
-    let (raw_tx, raw_rx) = std::sync::mpsc::channel::<(evdev::KeyCode, i32)>();
+    let (raw_tx, raw_rx) = std::sync::mpsc::channel::<RawEvent>();
 
     std::thread::spawn({
         let layout = layout_override.clone();
@@ -39,8 +47,11 @@ pub fn spawn_listener(
                     return;
                 }
             };
-            for (code, value) in raw_rx {
-                handle_key_event(code, value, &tx, &mut state);
+            for event in raw_rx {
+                match event {
+                    RawEvent::Key(code, value) => handle_key_event(code, value, &tx, &mut state),
+                    RawEvent::Rel(axis, value) => handle_rel_event(axis, value, &tx),
+                }
             }
         }
     });
@@ -106,7 +117,7 @@ fn is_mouse(device: &Device) -> bool {
 fn spawn_device_reader(
     path: PathBuf,
     mut device: Device,
-    raw_tx: Sender<(evdev::KeyCode, i32)>,
+    raw_tx: Sender<RawEvent>,
     open_paths: Arc<Mutex<HashSet<PathBuf>>>,
 ) {
     std::thread::spawn(move || {
@@ -116,8 +127,14 @@ fn spawn_device_reader(
                 Err(_) => break, // device unplugged or read error: drop the reader
             };
             for event in events {
-                if let evdev::EventSummary::Key(_, code, value) = event.destructure() {
-                    let _ = raw_tx.send((code, value));
+                match event.destructure() {
+                    evdev::EventSummary::Key(_, code, value) => {
+                        let _ = raw_tx.send(RawEvent::Key(code, value));
+                    }
+                    evdev::EventSummary::RelativeAxis(_, axis, value) => {
+                        let _ = raw_tx.send(RawEvent::Rel(axis, value));
+                    }
+                    _ => {}
                 }
             }
         }
@@ -309,6 +326,33 @@ fn parse_kv_layout(text: &str, layout_key: &str, variant_key: &str) -> Option<(S
     }
     let layout = layout.filter(|l| !l.is_empty() && l != "(unset)")?;
     (layout != "n/a").then_some((layout, variant))
+}
+
+/// Forwards mouse movement (REL_X/REL_Y) and scroll (REL_WHEEL/REL_HWHEEL).
+/// Emitted per axis; the overlay accumulates them, so a separate X and Y event
+/// is fine. Works on X11 and Wayland alike (we read the device directly).
+fn handle_rel_event(axis: evdev::RelativeAxisCode, value: i32, tx: &Sender<RawInput>) {
+    let input = match axis {
+        evdev::RelativeAxisCode::REL_X => RawInput::MouseMotion {
+            dx: value as f64,
+            dy: 0.0,
+        },
+        evdev::RelativeAxisCode::REL_Y => RawInput::MouseMotion {
+            dx: 0.0,
+            dy: value as f64,
+        },
+        // REL_WHEEL is positive-up; keep that convention (dy>0 = up).
+        evdev::RelativeAxisCode::REL_WHEEL => RawInput::Scroll {
+            dx: 0.0,
+            dy: value as f64,
+        },
+        evdev::RelativeAxisCode::REL_HWHEEL => RawInput::Scroll {
+            dx: value as f64,
+            dy: 0.0,
+        },
+        _ => return,
+    };
+    let _ = tx.send(input);
 }
 
 fn mouse_button(code: evdev::KeyCode) -> Option<u8> {

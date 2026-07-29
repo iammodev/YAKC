@@ -18,6 +18,9 @@ tauri-plugin-single-instance = "2"
 tauri-plugin-dialog = "2"
 tts = "0.26"
 active-win-pos-rs = "0.9"
+# Cross-platform gamepad/controller input (XInput on Windows, IOKit/GameController
+# on macOS, evdev on Linux — works on X11 and Wayland).
+gilrs = "0.11"
 
 # Windows & macOS: global hook via the OS APIs (WH_KEYBOARD_LL / CGEventTap),
 # with OS-native key-to-character translation for any keyboard language.

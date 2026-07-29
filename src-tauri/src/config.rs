@@ -38,6 +38,21 @@ pub struct Config {
     pub show_keyboard_click: bool,
     pub show_mouse_click: bool,
     pub show_mouse_coordinates: bool,
+    /// Show a dot-in-a-ring widget that reacts to mouse movement.
+    pub show_mouse_movement: bool,
+    /// Show scroll-wheel ticks as popup tokens (⤒/⤓/⇤/⇥).
+    pub show_mouse_scroll: bool,
+    /// Show gamepad/controller input: buttons as popups, sticks/triggers in a widget.
+    pub show_gamepad: bool,
+    /// How far the mouse-movement dot travels per pixel moved (higher = more sensitive).
+    #[serde(deserialize_with = "lenient_f64")]
+    pub mouse_movement_sensitivity: f64,
+    /// Seconds for the mouse-movement dot to spring back to center once still.
+    #[serde(deserialize_with = "lenient_f64")]
+    pub mouse_movement_decay_seconds: f64,
+    /// Overall scale of the mouse/gamepad widgets (1.0 = default size).
+    #[serde(deserialize_with = "lenient_f64")]
+    pub device_widget_scale: f64,
     pub only_keys_with_modifiers: bool,
     pub show_space_as_unicode: bool,
     pub text_to_symbols: bool,
@@ -92,6 +107,12 @@ impl Default for Config {
             show_keyboard_click: true,
             show_mouse_click: false,
             show_mouse_coordinates: false,
+            show_mouse_movement: false,
+            show_mouse_scroll: false,
+            show_gamepad: false,
+            mouse_movement_sensitivity: 1.0,
+            mouse_movement_decay_seconds: 0.4,
+            device_widget_scale: 1.0,
             only_keys_with_modifiers: false,
             show_space_as_unicode: false,
             text_to_symbols: true,

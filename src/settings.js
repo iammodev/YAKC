@@ -55,6 +55,22 @@ const SECTIONS = [
     ],
   },
   {
+    title: "Mouse (movement & scroll)",
+    fields: [
+      { key: "showMouseMovement", type: "bool", label: "Show mouse movement", hint: "A dot-in-a-ring widget that reacts to how you move the mouse (works on Wayland too)" },
+      { key: "showMouseScroll", type: "bool", label: "Show scroll wheel", hint: "Scroll ticks appear as popup tokens (Scroll↑ / Scroll↓)" },
+      { key: "mouseMovementSensitivity", type: "number", label: "Movement sensitivity", min: 0.1, step: 0.1 },
+      { key: "mouseMovementDecaySeconds", type: "number", label: "Spring-back time (s)", min: 0.05, step: 0.05, hint: "How long the dot takes to return to center once the mouse stops" },
+      { key: "deviceWidgetScale", type: "number", label: "Widget size (scale)", min: 0.3, max: 5, step: 0.1, hint: "Size of the mouse & gamepad widgets" },
+    ],
+  },
+  {
+    title: "Gamepad / controller",
+    fields: [
+      { key: "showGamepad", type: "bool", label: "Show gamepad input", hint: "Buttons as popups; sticks & triggers in a widget. Works with any XInput / DualShock-style controller." },
+    ],
+  },
+  {
     title: "Text-to-speech",
     fields: [
       { key: "textToSpeech", type: "bool", label: "Speak every keystroke" },
@@ -171,6 +187,11 @@ function collectForm() {
           .split(",")
           .map((s) => s.trim())
           .filter((s) => s.length > 0);
+        break;
+      case "link":
+        // Not an input — it links to another page. Leave the value from
+        // config untouched (spread above); collecting the button's empty
+        // string here would clobber keyLabelOverrides (a map).
         break;
       default:
         updated[key] = input.value;

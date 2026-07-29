@@ -17,6 +17,9 @@ pub fn spawn_listener(
         // Keys currently held down: a KeyPress for one of these is an
         // auto-repeat (the OS hooks deliver repeats as fresh KeyPress events).
         let mut held: std::collections::HashSet<Key> = std::collections::HashSet::new();
+        // rdev reports absolute cursor positions; we forward relative deltas so
+        // the movement widget behaves the same as the Linux (evdev) path.
+        let mut last_pos: Option<(f64, f64)> = None;
 
         let callback = move |event: Event| {
             match event.event_type {
@@ -56,6 +59,21 @@ pub fn spawn_listener(
                         Button::Unknown(code) => code,
                     };
                     let _ = tx.send(RawInput::MouseButton { button });
+                }
+                EventType::MouseMove { x, y } => {
+                    if let Some((px, py)) = last_pos {
+                        let (dx, dy) = (x - px, y - py);
+                        if dx != 0.0 || dy != 0.0 {
+                            let _ = tx.send(RawInput::MouseMotion { dx, dy });
+                        }
+                    }
+                    last_pos = Some((x, y));
+                }
+                EventType::Wheel { delta_x, delta_y } => {
+                    let _ = tx.send(RawInput::Scroll {
+                        dx: delta_x as f64,
+                        dy: delta_y as f64,
+                    });
                 }
                 _ => {}
             }

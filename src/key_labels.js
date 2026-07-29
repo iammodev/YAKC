@@ -22,6 +22,10 @@ function groupLabel(group) {
       return "Function keys (F1–F12)";
     case "system":
       return "System (Escape, Caps Lock, Print Screen, …)";
+    case "mouse":
+      return "Mouse (scroll wheel)";
+    case "gamepad":
+      return "Gamepad / controller";
     default:
       return "Other";
   }
@@ -37,7 +41,7 @@ function buildForm() {
     (groups[key.group] ??= []).push(key);
   }
 
-  const groupOrder = ["modifier", "editing", "navigation", "numpad", "function", "system", "other"];
+  const groupOrder = ["modifier", "editing", "navigation", "numpad", "function", "system", "mouse", "gamepad", "other"];
 
   for (const g of groupOrder) {
     const keys = groups[g];
