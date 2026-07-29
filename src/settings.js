@@ -24,7 +24,7 @@ const SECTIONS = [
     title: "Position",
     fields: [
       { key: "showOnMonitor", type: "number", label: "Monitor index", hint: "0 = first monitor", min: 0, step: 1 },
-      { key: "position", type: "select", label: "Screen corner", options: ["top-left", "top-right", "bottom-left", "bottom-right"] },
+      { key: "position", type: "select", label: "Screen position", options: ["top-left", "top-center", "top-right", "center", "bottom-left", "bottom-center", "bottom-right"] },
       { key: "topOffset", type: "number", label: "Top offset (px)" },
       { key: "bottomOffset", type: "number", label: "Bottom offset (px)" },
       { key: "leftOffset", type: "number", label: "Left offset (px)" },

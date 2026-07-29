@@ -43,14 +43,45 @@ function applyConfigStyles() {
     }
   `;
 
-  // Anchor the popup stack to the configured corner with the configured offsets.
+  // Anchor the popup stack to the configured position with the configured offsets.
   const position = config.position || "top-left";
   const [vertical, horizontal] = position.split("-");
-  popupArea.style.top = vertical === "top" ? `${num(config.topOffset, 0)}px` : "auto";
-  popupArea.style.bottom = vertical === "bottom" ? `${num(config.bottomOffset, 0)}px` : "auto";
-  popupArea.style.left = horizontal === "left" ? `${num(config.leftOffset, 0)}px` : "auto";
-  popupArea.style.right = horizontal === "right" ? `${num(config.rightOffset, 0)}px` : "auto";
-  popupArea.style.alignItems = horizontal === "left" ? "flex-start" : "flex-end";
+
+  // Vertical anchoring
+  popupArea.style.bottom = "auto";
+  if (vertical === "top") {
+    popupArea.style.top = `${num(config.topOffset, 0)}px`;
+  } else if (vertical === "bottom") {
+    popupArea.style.top = "auto";
+    popupArea.style.bottom = `${num(config.bottomOffset, 0)}px`;
+  } else {
+    // center — vertically centered
+    popupArea.style.top = "50%";
+  }
+
+  // Horizontal anchoring
+  popupArea.style.right = "auto";
+  if (horizontal === "left") {
+    popupArea.style.left = `${num(config.leftOffset, 0)}px`;
+    popupArea.style.alignItems = "flex-start";
+  } else if (horizontal === "right") {
+    popupArea.style.left = "auto";
+    popupArea.style.right = `${num(config.rightOffset, 0)}px`;
+    popupArea.style.alignItems = "flex-end";
+  } else {
+    // center (or full center with no horizontal component)
+    popupArea.style.left = "50%";
+    popupArea.style.alignItems = "center";
+  }
+
+  // Transform: full center offsets both axes, edge-center offsets only X
+  if (horizontal === "center") {
+    popupArea.style.transform = "translateX(-50%)";
+  } else if (!horizontal) {
+    popupArea.style.transform = "translate(-50%, -50%)";
+  } else {
+    popupArea.style.transform = "none";
+  }
 }
 
 function renderPopup(popup) {
