@@ -7,6 +7,15 @@ use tauri::{AppHandle, Manager};
 
 pub type SharedConfig = Arc<RwLock<Config>>;
 
+/// A widget's on-screen top-left position in pixels.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct WidgetPos {
+    #[serde(deserialize_with = "lenient_f64")]
+    pub x: f64,
+    #[serde(deserialize_with = "lenient_f64")]
+    pub y: f64,
+}
+
 /// Runtime configuration. Field names serialize to the same camelCase keys the
 /// Electron version used, so existing config.json files keep working.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -90,6 +99,14 @@ pub struct Config {
     /// ("backspace", "f1", "meta", "ctrl", …), value = custom display text.
     /// E.g. {"meta": "MOD"} shows "MOD" instead of "META" in combos.
     pub key_label_overrides: HashMap<String, String>,
+    /// Independent top-left positions (px) per overlay widget, keyed by id
+    /// ("mouse", "gamepad"). Absent = the widget's default placement. Set by
+    /// drag-to-position so each widget can live anywhere without overlapping.
+    pub widget_positions: HashMap<String, WidgetPos>,
+    /// Show alignment guide lines and snap widgets to each other / the screen
+    /// center while dragging in move mode. On by default; toggled from the move
+    /// toolbar.
+    pub snap_to_guides: bool,
     /// Serve the overlay over HTTP for use as an OBS Browser source. Opt-in;
     /// changing this needs an app restart to start/stop the server.
     pub obs_server_enabled: bool,
@@ -148,6 +165,8 @@ impl Default for Config {
             display_style: "popups".into(),
             keyboard_visible_keys: Vec::new(),
             key_label_overrides: HashMap::new(),
+            widget_positions: HashMap::new(),
+            snap_to_guides: true,
             obs_server_enabled: false,
             obs_server_port: 7238,
         }

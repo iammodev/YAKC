@@ -20,6 +20,16 @@ const STICK_MAX_OFFSET = 26; // px, matches .stick radius minus dot size
 const flags = { mouse: false, gamepad: false, connected: false };
 const params = { sensitivity: 1, decay: 0.4, scale: 1 };
 
+let moveMode = false;
+let lastConfig = null;
+
+// Default anchors (opposite bottom corners) when a widget has no saved position,
+// so the mouse and gamepad widgets don't stack on each other or the keyboard.
+const DEFAULT_POS = {
+  mouse: { right: "90px", bottom: "90px" },
+  gamepad: { left: "90px", bottom: "90px" },
+};
+
 // Mouse dot offset, normalized to -1..1; springs back to center when idle.
 let mx = 0;
 let my = 0;
@@ -33,11 +43,32 @@ function clamp01(v) {
 }
 
 function applyVisibility() {
+  // In drag-to-position mode, show every enabled widget so it can be placed,
+  // regardless of live activity or controller connection.
   const showMouse = flags.mouse;
-  const showGamepad = flags.gamepad && flags.connected;
+  const showGamepad = moveMode ? flags.gamepad : flags.gamepad && flags.connected;
   mouseWidget.hidden = !showMouse;
   gamepadWidget.hidden = !showGamepad;
   deviceLayer.hidden = !(showMouse || showGamepad);
+}
+
+// Place a widget at its saved position (or a default corner) and apply scale.
+function placeWidget(el, id) {
+  const pos = lastConfig && lastConfig.widgetPositions && lastConfig.widgetPositions[id];
+  el.style.left = el.style.top = el.style.right = el.style.bottom = "auto";
+  if (pos && Number.isFinite(pos.x) && Number.isFinite(pos.y)) {
+    el.style.left = `${pos.x}px`;
+    el.style.top = `${pos.y}px`;
+  } else {
+    const def = DEFAULT_POS[id];
+    for (const k in def) el.style[k] = def[k];
+  }
+  el.style.transform = `scale(${params.scale})`;
+}
+
+function applyWidgetPositions() {
+  placeWidget(mouseWidget, "mouse");
+  placeWidget(gamepadWidget, "gamepad");
 }
 
 function onDeviceState(s) {
@@ -47,8 +78,6 @@ function onDeviceState(s) {
   flags.connected = s.gamepadConnected;
   params.sensitivity = s.sensitivity || 1;
   params.decay = s.decaySeconds > 0 ? s.decaySeconds : 0.0001;
-  params.scale = s.scale || 1;
-  deviceLayer.style.setProperty("--dev-scale", params.scale);
 
   // Accumulate mouse motion as an impulse toward the movement direction.
   mx = Math.max(-1, Math.min(1, mx + s.mouseDx * MOUSE_GAIN * params.sensitivity));
@@ -67,11 +96,12 @@ function onDeviceState(s) {
 /** Config drives initial + toggle-off visibility (device-state only fires on activity). */
 function onConfig(c) {
   if (!c) return;
+  lastConfig = c;
   flags.mouse = c.showMouseMovement;
   flags.gamepad = c.showGamepad;
   params.scale = c.deviceWidgetScale || 1;
-  deviceLayer.style.setProperty("--dev-scale", params.scale);
   deviceLayer.style.setProperty("--dev-color", c.popupFontColor || "#ffffff");
+  applyWidgetPositions();
   applyVisibility();
 }
 
@@ -115,6 +145,13 @@ async function init() {
 
   await tauriEvent.listen("device-state", (e) => onDeviceState(e.payload));
   await tauriEvent.listen("config-updated", (e) => onConfig(e.payload));
+  // Drag-to-position: reveal enabled widgets so they can be placed; on exit,
+  // re-place them (undoing any unsaved drag) and restore normal visibility.
+  await tauriEvent.listen("overlay-move", (e) => {
+    moveMode = !!e.payload;
+    applyWidgetPositions();
+    applyVisibility();
+  });
   requestAnimationFrame(frame);
 }
 
