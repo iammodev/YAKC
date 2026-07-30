@@ -66,7 +66,7 @@ jobs:
           for attempt in 1 2 3 4 5; do
             sudo apt-get update && sudo apt-get install -y \
               libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf \
-              libxkbcommon-dev libspeechd-dev && exit 0
+              libxkbcommon-dev libspeechd-dev libudev-dev && exit 0
             echo "apt attempt $attempt failed; retrying in 20s"; sleep 20
           done
           echo "apt failed after 5 attempts"; exit 1
