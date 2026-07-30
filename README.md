@@ -10,9 +10,9 @@
   <a href="https://github.com/iammodev/YAKC/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/iammodev/YAKC?color=2ea043"></a>
 </p>
 
-**YAKC (Yet Another Key Caster)** is a **free, open-source, cross-platform keystroke visualizer and mouse-click overlay**. It shows the keys you press and the mouse buttons you click as clean, customizable **on-screen popups**, in real time — ideal for **screencasts, live streams (OBS, Twitch, YouTube), video tutorials, presentations, screen recordings and pair programming**.
+**YAKC (Yet Another Key Caster)** is a **free, open-source, cross-platform input visualizer** for **keyboard, mouse _and_ gamepad**. It shows the keys you press, the mouse buttons you click, how you move and scroll the mouse, and your controller's buttons, sticks and triggers — as clean, customizable **on-screen popups**, a light-up **virtual keyboard**, or device widgets, in real time. Display it **on your screen or as a transparent [OBS](https://obsproject.com/) browser source** — ideal for **live streams (OBS, Twitch, YouTube), screencasts, video tutorials, presentations, screen recordings, gaming overlays and pair programming**.
 
-One tool for **Windows, macOS and Linux (X11 _and_ Wayland)** that shows **any keyboard layout or language automatically** — a modern, actively maintained alternative to platform-locked keycasters like **KeyCastr** (macOS only), **Carnac** (Windows only), **screenkey** and **showmethekey** (Linux only).
+One tool for **Windows, macOS and Linux (X11 _and_ Wayland)** that shows **any keyboard layout or language automatically** — a modern, actively maintained alternative to platform-locked keycasters like **KeyCastr** (macOS only), **Carnac** (Windows only), **screenkey** and **showmethekey** (Linux only), and to the Windows-centric **input-overlay** OBS plugin — with keyboard, mouse-movement and controller visuals built in, on every OS.
 
 <p align="center">
   <img src="https://github.com/iammodev/YAKC/assets/89686923/1b650c0b-bf86-47f6-afad-cfc072eb59c9" alt="YAKC showing keystrokes and mouse clicks as customizable on-screen popups in real time" width="760">
@@ -30,46 +30,58 @@ The Electron version needed Node.js, a native `iohook` build per platform, and s
 
 ## Features
 
-- **Two display modes**:
+- **Two display styles**:
+  - `popups` (default) — clean, fading key/click tokens
+  - `keyboard` — an **on-screen virtual keyboard** whose caps light up as you type; detects your **real OS layout** (QWERTZ/AZERTY/…) and lights the correct physical key even on non-US layouts. **Pick exactly which keys to show** with a visual selector (e.g. just WASD + your binds) — it stays compact and gap-free
+- **Two popup modes**:
   - `text` (default) — behaves like a text editor: only the characters you type appear, **Backspace really deletes**, shortcuts and navigation keys stay hidden
   - `raw` — every key shows: modifiers (`CTRL + ALT + H`), `⌫`, arrows, F-keys, …
+- **Mouse everything** — buttons/clicks (optionally with coordinates), **mouse movement** (a dot-in-a-ring widget, works on Wayland too) and **scroll wheel**
+- **Gamepad / controller** — buttons as tokens, plus a live widget for the analog sticks and triggers (XInput / DualShock / DualSense-style controllers, all platforms)
+- **OBS browser source** — serve the whole overlay as a transparent web page at `http://localhost:<port>/overlay`; add it as a Browser source and it's captured live, or hide it from your own screen and show it **only** in OBS
 - **Held keys don't spam** — they show a counter: `a (x13)`
-- Display **key** & **mouse** clicks (optionally with coordinates)
 - Highly customizable popups (size, opacity, colors, font, corner radius)
-- Any screen corner + pixel offsets, on **any monitor**
+- Any screen corner + pixel offsets, on **any monitor** — or **drag the overlay to any position** with a temporary click-through toggle
 - Smooth fade-out transition
 - **Settings GUI** — configure everything at runtime, applies live
 - **Global hotkey** to toggle capturing (default `Ctrl+Alt+Y`)
-- Tray icon: toggle capturing, open settings, quit
+- Tray icon: toggle capturing, move the overlay, open settings, quit
 - **Text-to-speech** — hear each keystroke spoken aloud; adds an audible layer that's handy for accessibility, screencasts, tutorials and language practice
 - **Process filter**: only capture while selected apps are focused
 
-## YAKC vs. other keystroke visualizers
+## YAKC vs. other input visualizers
 
-Most keycasters only run on **one** operating system. YAKC is the one that works **everywhere** — including **Wayland**, where most Linux options still fall short.
+Most keycasters only run on **one** operating system, and the streaming-oriented ones (input-overlay) are effectively Windows-first. YAKC is the one that works **everywhere** — including **Wayland**, where most Linux options still fall short — and covers keyboard, mouse **and** gamepad in a single tool.
 
-| | **YAKC** | KeyCastr | Carnac | screenkey | showmethekey |
-|---|:---:|:---:|:---:|:---:|:---:|
-| **Windows** | ✅ | — | ✅ | — | — |
-| **macOS** (Intel + Apple Silicon) | ✅ | ✅ | — | — | — |
-| **Linux · X11** | ✅ | — | — | ✅ | ✅ |
-| **Linux · Wayland** | ✅ | — | — | ⚠️ limited | ✅ |
-| **Mouse clicks** | ✅ | — | — | — | ✅ |
-| **Any keyboard language, automatic** | ✅ | ✅ | — | ⚠️ | ✅ |
-| **Editor-style "text" mode** (Backspace deletes) | ✅ | — | — | — | — |
-| **Text-to-speech** | ✅ | — | — | — | — |
-| **Runtime settings GUI** | ✅ | ✅ | ✅ | — | ✅ |
-| **Open source** | ✅ MIT | ✅ | ⚠️ inactive | ✅ | ✅ |
+| | **YAKC** | KeyCastr | Carnac | screenkey | showmethekey | input&#8209;overlay |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Windows** | ✅ | — | ✅ | — | — | ✅ |
+| **macOS** (Intel + Apple Silicon) | ✅ | ✅ | — | — | — | ⚠️ |
+| **Linux · X11** | ✅ | — | — | ✅ | ✅ | ⚠️ |
+| **Linux · Wayland** | ✅ | — | — | ⚠️ limited | ✅ | — |
+| **Mouse clicks** | ✅ | — | — | — | ✅ | ✅ |
+| **Mouse movement + scroll** | ✅ | — | — | — | — | ✅ |
+| **Gamepad / controller** | ✅ | — | — | — | — | ✅ |
+| **On-screen keyboard / device skins** | ✅ | — | — | — | — | ✅ |
+| **OBS browser source (transparent)** | ✅ | — | — | — | — | ✅ |
+| **Drag-to-position overlay** | ✅ | ✅ | — | — | — | ✅ |
+| **Any keyboard language, automatic** | ✅ | ✅ | — | ⚠️ | ✅ | ⚠️ |
+| **Editor-style "text" mode** (Backspace deletes) | ✅ | — | — | — | — | — |
+| **Text-to-speech** | ✅ | — | — | — | — | — |
+| **Runtime settings GUI** | ✅ | ✅ | ✅ | — | ✅ | ✅ |
+| **Works standalone (no OBS required)** | ✅ | ✅ | ✅ | ✅ | ✅ | — |
+| **Open source** | ✅ MIT | ✅ | ⚠️ inactive | ✅ | ✅ | ✅ |
 
-<sub>Reflects each project's primary, out-of-the-box support; details vary by version and community forks. Corrections welcome via PR.</sub>
+<sub>Reflects each project's primary, out-of-the-box support; details vary by version and community forks. input-overlay is an OBS Studio plugin (needs OBS) whose full input capture is best-supported on Windows. Corrections welcome via PR.</sub>
 
-**In short:** if you want a single keystroke display that looks and behaves the same on Windows, macOS **and** Linux (X11 and Wayland), in any language, with mouse clicks and a live settings UI, YAKC is currently the most complete choice.
+**In short:** if you want a single input display — keyboard, mouse (clicks, movement, scroll) and gamepad — that looks and behaves the same on Windows, macOS **and** Linux (X11 and Wayland), in any language, standalone **or** as an OBS browser source, YAKC is currently the most complete choice.
 
 ## How it works per platform
 
 | | Windows | macOS | Linux (X11) | Linux (Wayland) |
 |---|---|---|---|---|
 | Key/mouse capture | `WH_KEYBOARD_LL` hook | `CGEventTap` | `/dev/input` (evdev) | `/dev/input` (evdev) |
+| Gamepad capture | XInput | IOKit / GameController | evdev | evdev |
 | Layout translation | OS (`ToUnicode`) | OS (`UCKeyTranslate`) | xkbcommon | xkbcommon, keymap fetched **from the compositor** — exactly the layout you configured in your desktop settings |
 | Overlay | native | native (above fullscreen apps) | native | via XWayland¹ |
 | Text-to-speech | SAPI (built in) | AVSpeechSynthesizer (built in) | speech-dispatcher (offered automatically²) | speech-dispatcher (offered automatically²) |
@@ -142,6 +154,8 @@ Settings live in `config.json` — edit them via the Settings window or by hand:
 
 | Key | Description |
 |---|---|
+| `displayStyle` | `popups` (default): fading key/click tokens. `keyboard`: an on-screen virtual keyboard that lights up as you type. |
+| `keyboardVisibleKeys` | `keyboard` style only: list of physical keys (W3C codes, e.g. `KeyW`, `Space`) to show. Empty = the whole keyboard. Set it visually via Settings → Input → *Pick keys…*. |
 | `displayMode` | `text` (default): like a text editor — only typed characters, Backspace deletes, shortcuts hidden. `raw`: every key including modifiers and symbols. |
 | `keyboardLayout` | **Linux only**: xkb layout override (`us`, `de`, `tr`, …). Empty = auto-detect from the compositor/session. Legacy values `english`/`german` still work. Other platforms always use the OS layout. |
 | `showOnMonitor` | Monitor index to display popups on (0 = first) |
@@ -154,6 +168,11 @@ Settings live in `config.json` — edit them via the Settings window or by hand:
 | `popupFontColor` / `popupBackgroundColor` | Popup colors |
 | `popupBorderRadius` | Corner radius (`0` = sharp) |
 | `showKeyboardClick` / `showMouseClick` / `showMouseCoordinates` | What to display (mouse coordinates are unavailable on Wayland and hidden there) |
+| `showMouseMovement` / `showMouseScroll` | Show mouse movement (dot-in-a-ring widget) and scroll-wheel ticks |
+| `showGamepad` | Show gamepad buttons as tokens plus a stick/trigger widget |
+| `mouseMovementSensitivity` / `mouseMovementDecaySeconds` / `deviceWidgetScale` | Tune the mouse-movement widget (travel per pixel, spring-back time) and the mouse/gamepad widget size |
+| `obsServerEnabled` / `obsServerPort` | Serve the overlay for OBS at `http://localhost:<port>/overlay` (default port `7238`). Enabling starts it immediately; changing the port needs a restart. |
+| `showOverlayOnScreen` | Turn off to display only in the OBS browser source (so it isn't captured twice or seen locally) |
 | `onlyKeysWithModifiers` | Only show keys pressed together with Ctrl/Alt/Meta |
 | `showSpaceAsUnicode` | Show space as `␣` |
 | `textToSymbols` | Special keys as symbols (Tab → `↹`, Backspace → `⌫`, …) |
@@ -182,7 +201,16 @@ YAKC. KeyCastr is macOS-only, Carnac is Windows-only, and screenkey is Linux/X11
 Yes — mouse buttons (and optional coordinates) alongside your keystrokes.
 
 **Does it work with OBS, for streaming and screen recording?**
-Yes. YAKC draws a transparent, click-through, always-on-top overlay that OBS, other capture tools and screen recorders pick up like any other on-screen content.
+Yes, two ways. YAKC draws a transparent, click-through, always-on-top overlay that OBS, other capture tools and screen recorders pick up like any other on-screen content — **or** you can enable its built-in **browser source**: point an OBS *Browser* source at `http://localhost:<port>/overlay` for a transparent, live feed of your keys, clicks, mouse movement and controller. You can even hide the overlay from your own screen and show it only in OBS.
+
+**Does it show gamepad / controller input?**
+Yes. YAKC displays controller buttons as tokens and draws a live widget for the analog sticks and triggers, for XInput / DualShock / DualSense-style controllers — on Windows, macOS and Linux.
+
+**What's a good input-overlay alternative?**
+YAKC. The popular `input-overlay` OBS plugin is effectively Windows-first and requires OBS. YAKC gives you keyboard, mouse (clicks, movement and scroll) and gamepad visuals on Windows, macOS **and** Linux (X11 and Wayland), works standalone **or** as an OBS browser source, and needs no plugin install.
+
+**Does it show mouse movement and scrolling, not just clicks?**
+Yes — a dot-in-a-ring widget reacts to how you move the mouse (works on Wayland too), and scroll-wheel ticks show alongside your keys.
 
 **Does it support my keyboard language or layout?**
 Yes, automatically. Characters come straight from your operating system (or, on Wayland, your compositor), so QWERTY, QWERTZ, AZERTY, Turkish, Cyrillic, Greek and more all work with zero configuration.
@@ -201,7 +229,13 @@ Yes. It's MIT-licensed, fully offline, and never stores or transmits anything yo
 - [x] GUI to easily configure at runtime
 - [x] Add hotkey for start/stop listening to keystrokes
 - [x] Add unit tests
-- [ ] Drag and drop the popup to the desired position (needs a temporary non-click-through mode)
+- [x] Drag and drop the popup to the desired position *(temporary non-click-through move mode)*
+- [x] Mouse movement + scroll visualizer
+- [x] Gamepad / controller visualizer (buttons, sticks, triggers)
+- [x] On-screen virtual keyboard display style *(with a visual "pick which keys to show" selector)*
+- [x] OBS browser-source output *(transparent overlay over HTTP)*
+- [ ] Presets, themes & profiles (named config snapshots)
+- [ ] Settings pickers — live process list for the filter, font & monitor dropdowns
 
 ## Buy me a coffee
 
@@ -225,4 +259,4 @@ This project is licensed under the `MIT` License. See the [LICENSE](LICENSE) fil
 
 ---
 
-<sub><b>Also known as / related searches:</b> keystroke visualizer · key caster · keycast · on-screen keyboard display · show keys on screen · keystroke overlay · keypress display · mouse click visualizer · screencast keystrokes · OBS keystroke display · streaming key overlay · presentation key display · Wayland keystroke visualizer · cross-platform keycaster · KeyCastr alternative · Carnac alternative · screenkey alternative · showmethekey alternative · keystroke display for Windows, macOS and Linux.</sub>
+<sub><b>Also known as / related searches:</b> keystroke visualizer · input visualizer · key caster · keycast · on-screen keyboard display · virtual keyboard overlay · show keys on screen · keystroke overlay · keypress display · mouse click visualizer · mouse movement overlay · scroll wheel overlay · gamepad overlay · controller input display · controller overlay for streaming · screencast keystrokes · OBS keystroke display · OBS input overlay · OBS browser source key overlay · streaming key overlay · gaming input overlay · presentation key display · Wayland keystroke visualizer · cross-platform keycaster · KeyCastr alternative · Carnac alternative · screenkey alternative · showmethekey alternative · input-overlay alternative · keystroke, mouse and gamepad display for Windows, macOS and Linux.</sub>
