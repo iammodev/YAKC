@@ -1,6 +1,6 @@
 [package]
 name = "yakc"
-version = "2.0.0"
+version = "2.8.0"
 description = "YAKC - Yet Another Key Caster"
 authors = ["IAMMODEV"]
 license = "MIT"
