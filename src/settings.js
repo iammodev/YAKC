@@ -44,6 +44,7 @@ const SECTIONS = [
     title: "Input",
     fields: [
       { key: "displayStyle", type: "select", label: "Overlay style", options: ["popups", "keyboard"], hint: "popups: fading key popups. keyboard: an on-screen keyboard that lights up as you type (great for tutorials/streams)." },
+      { key: "keyboardVisibleKeys", type: "link", href: "key_select.html", buttonLabel: "Pick keys…", label: "Keys to show on keyboard", hint: "Keyboard style only: pick exactly which keys appear (e.g. just WASD + binds). Default shows the whole keyboard." },
       { key: "displayMode", type: "select", label: "Display mode", options: ["text", "raw"], hint: "Popups only. text: like a text editor — only typed characters, Backspace deletes. raw: every key (modifiers, ⌫, arrows, …)" },
       { key: "showKeyboardClick", type: "bool", label: "Show keyboard clicks" },
       { key: "showMouseClick", type: "bool", label: "Show mouse clicks" },
@@ -162,9 +163,9 @@ function buildForm() {
           case "link":
             input = document.createElement("button");
             input.className = "link-btn";
-            input.textContent = "Edit";
+            input.textContent = field.buttonLabel || "Edit";
             input.addEventListener("click", () => {
-              window.location.href = "key_labels.html";
+              window.location.href = field.href || "key_labels.html";
             });
             break;
           case "action":

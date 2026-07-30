@@ -82,6 +82,10 @@ pub struct Config {
     /// Overlay rendering style. "popups": fading key popups (default).
     /// "keyboard": an on-screen keyboard whose caps light up as you type.
     pub display_style: String,
+    /// "keyboard" style only: which physical keys (W3C codes, e.g. "KeyA",
+    /// "Space") to render. Empty = show the whole keyboard. Lets users trim it
+    /// down to just the keys they care about (e.g. WASD + a few binds).
+    pub keyboard_visible_keys: Vec<String>,
     /// Override display text for any key. Key = internal key id
     /// ("backspace", "f1", "meta", "ctrl", …), value = custom display text.
     /// E.g. {"meta": "MOD"} shows "MOD" instead of "META" in combos.
@@ -142,6 +146,7 @@ impl Default for Config {
             toggle_capture_hotkey: "Ctrl+Alt+Y".into(),
             display_mode: "text".into(),
             display_style: "popups".into(),
+            keyboard_visible_keys: Vec::new(),
             key_label_overrides: HashMap::new(),
             obs_server_enabled: false,
             obs_server_port: 7238,

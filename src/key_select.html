@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YAKC — Pick Keys to Show</title>
+  <link rel="stylesheet" href="key_select.css" />
+</head>
+
+<body>
+  <header>
+    <a id="backLink" href="settings.html">← Back to Settings</a>
+    <h1>Pick which keys to show</h1>
+    <p>
+      Click keys to include or exclude them from the on-screen keyboard.
+      Caps are shown for your real layout. With every key selected the whole
+      keyboard shows.
+    </p>
+    <div class="toolbar">
+      <button id="selectAll" type="button">Select all</button>
+      <button id="clearAll" type="button">Clear</button>
+      <button id="invert" type="button">Invert</button>
+      <span id="count"></span>
+    </div>
+  </header>
+
+  <main>
+    <div id="preview"></div>
+  </main>
+
+  <footer>
+    <button id="saveBtn">Save &amp; Apply</button>
+    <span id="status"></span>
+  </footer>
+
+  <script src="keyboard-layout.js"></script>
+  <script src="key_select.js"></script>
+</body>
+
+</html>

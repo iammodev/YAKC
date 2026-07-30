@@ -17,32 +17,45 @@
 (() => {
   const { event: tauriEvent, core } = window.__TAURI__;
 
-  // [code, default label, widthUnits?]
-  const ROWS = [
-    [["Escape", "Esc", 1.5], ["F1", "F1"], ["F2", "F2"], ["F3", "F3"], ["F4", "F4"], ["F5", "F5"], ["F6", "F6"], ["F7", "F7"], ["F8", "F8"], ["F9", "F9"], ["F10", "F10"], ["F11", "F11"], ["F12", "F12"]],
-    [["Backquote", "`"], ["Digit1", "1"], ["Digit2", "2"], ["Digit3", "3"], ["Digit4", "4"], ["Digit5", "5"], ["Digit6", "6"], ["Digit7", "7"], ["Digit8", "8"], ["Digit9", "9"], ["Digit0", "0"], ["Minus", "-"], ["Equal", "="], ["Backspace", "⌫", 2]],
-    [["Tab", "Tab", 1.5], ["KeyQ", "Q"], ["KeyW", "W"], ["KeyE", "E"], ["KeyR", "R"], ["KeyT", "T"], ["KeyY", "Y"], ["KeyU", "U"], ["KeyI", "I"], ["KeyO", "O"], ["KeyP", "P"], ["BracketLeft", "["], ["BracketRight", "]"], ["Backslash", "\\", 1.5]],
-    [["CapsLock", "Caps", 1.75], ["KeyA", "A"], ["KeyS", "S"], ["KeyD", "D"], ["KeyF", "F"], ["KeyG", "G"], ["KeyH", "H"], ["KeyJ", "J"], ["KeyK", "K"], ["KeyL", "L"], ["Semicolon", ";"], ["Quote", "'"], ["Enter", "Enter", 2.25]],
-    [["ShiftLeft", "Shift", 2.25], ["KeyZ", "Z"], ["KeyX", "X"], ["KeyC", "C"], ["KeyV", "V"], ["KeyB", "B"], ["KeyN", "N"], ["KeyM", "M"], ["Comma", ","], ["Period", "."], ["Slash", "/"], ["ShiftRight", "Shift", 2.25]],
-    [["ControlLeft", "Ctrl", 1.5], ["MetaLeft", "Super", 1.25], ["AltLeft", "Alt", 1.25], ["Space", "", 6.25], ["AltRight", "Alt", 1.25], ["MetaRight", "Super", 1.25], ["ControlRight", "Ctrl", 1.5]],
-    [["ArrowLeft", "←"], ["ArrowUp", "↑"], ["ArrowDown", "↓"], ["ArrowRight", "→"]],
-  ];
+  // Physical layout: [code, default label, widthUnits?]. Shared with the
+  // key-selector via keyboard-layout.js so the two never drift.
+  const ROWS = window.YAKC_KEYBOARD_ROWS || [];
 
   const FLASH_MS = 180;
   const capById = new Map(); // code -> element
   let keyboard;
+  let builtSignature = null; // which visible-key set is currently rendered
 
   function num(value, fallback) {
     const n = Number(value);
     return Number.isFinite(n) ? n : fallback;
   }
 
-  function build() {
+  // Labels for otherwise-blank caps, shown only in compact mode where the wide
+  // Space bar needs a glyph to read as a key.
+  const COMPACT_LABEL = { Space: "␣" };
+
+  // Keys at least this wide (only Space) stretch to fill to their row's right
+  // edge instead of being a lone square.
+  const STRETCH_MIN_UNITS = 3;
+
+  // Build the keyboard. With no selection the whole keyboard renders (flex rows,
+  // as designed). With a selection we switch to a compact grid of uniform square
+  // caps, packed tightly, so a trimmed keyboard has no wide-key gaps and no
+  // empty panel — just the keys you picked.
+  function build(visible) {
     keyboard.textContent = "";
     capById.clear();
+    keyboard.classList.toggle("kb-grid", Boolean(visible));
+    if (visible) buildTrimmed(visible);
+    else buildFull();
+  }
+
+  function buildFull() {
     for (const row of ROWS) {
       const rowEl = document.createElement("div");
       rowEl.className = "kb-row";
+      if (row.some(([code]) => code.startsWith("Arrow"))) rowEl.classList.add("kb-arrows");
       for (const [code, label, width] of row) {
         const key = document.createElement("div");
         key.className = "kb-key";
@@ -53,6 +66,74 @@
       }
       keyboard.appendChild(rowEl);
     }
+  }
+
+  function buildTrimmed(visible) {
+    // Collect selected caps tagged with their column INDEX in the original row
+    // (aligning by index, not pixel width, so Tab & Caps are both "column 0",
+    // Q & A both "column 1", …).
+    const selected = [];
+    const usedCols = new Set();
+    for (const row of ROWS) {
+      row.forEach(([code, label, width], index) => {
+        if (visible.has(code)) {
+          selected.push({ code, label, index, wide: (width || 1) >= STRETCH_MIN_UNITS });
+          usedCols.add(index);
+        }
+      });
+    }
+    if (!selected.length) return;
+
+    // Horizontal: drop columns nobody uses so unselected keys leave no gap.
+    const colMap = new Map([...usedCols].sort((a, b) => a - b).map((c, i) => [c, i]));
+    const cols = colMap.size;
+
+    // Vertical gravity: each column stacks its caps from the top, so an empty
+    // slot above (e.g. an unselected Caps over Shift) is removed and rows merge
+    // when they don't collide. A cap's visual row = how many selected caps are
+    // above it in the same column. Preserves "A under Q" (same column) while
+    // pulling everything as tight as it goes.
+    const depth = new Map();
+    const rows = [];
+    for (const p of selected) {
+      const r = depth.get(p.index) || 0;
+      depth.set(p.index, r + 1);
+      (rows[r] ||= []).push(p);
+    }
+    keyboard.style.setProperty("--kb-cols", String(cols));
+
+    rows.forEach((picks, rowIndex) => {
+      picks.sort((a, b) => colMap.get(a.index) - colMap.get(b.index));
+      picks.forEach((p, i) => {
+        const key = document.createElement("div");
+        key.className = "kb-key";
+        key.textContent = p.label || COMPACT_LABEL[p.code] || "";
+        let start = colMap.get(p.index) + 1; // 1-based grid line
+        let span = 1;
+        // A trailing wide key (Space) packs against the previous cap and fills to
+        // the right edge, reading as a spacebar rather than a lone square.
+        if (p.wide && i === picks.length - 1) {
+          const prev = i > 0 ? colMap.get(picks[i - 1].index) + 1 : 0;
+          start = prev + 1;
+          span = Math.max(1, cols - prev);
+        }
+        key.style.gridRow = String(rowIndex + 1);
+        key.style.gridColumn = `${start} / span ${span}`;
+        keyboard.appendChild(key);
+        capById.set(p.code, key);
+      });
+    });
+  }
+
+  // A stable signature of the visible-key selection, so we only rebuild the DOM
+  // (and re-fetch layout labels) when the selection actually changes.
+  function visibleFrom(config) {
+    const list = Array.isArray(config.keyboardVisibleKeys) ? config.keyboardVisibleKeys : [];
+    return list.length ? new Set(list) : null; // null = show everything
+  }
+
+  function signatureOf(visible) {
+    return visible ? [...visible].sort().join(",") : "*";
   }
 
   function relabel(code, label) {
@@ -119,13 +200,25 @@
 
   let lastConfig = null;
 
+  // Returns true if the keyboard DOM was rebuilt (selection changed), so the
+  // caller knows to re-fetch OS layout labels for the freshly created caps.
   function applyConfig(config) {
-    if (!config) return;
+    if (!config) return false;
     lastConfig = config;
     keyboard.hidden = config.displayStyle !== "keyboard";
     keyboard.style.setProperty("--kb-color", config.popupFontColor || "#ffffff");
     keyboard.style.setProperty("--kb-bg", config.popupBackgroundColor || "#000000");
+
+    const visible = visibleFrom(config);
+    const signature = signatureOf(visible);
+    let rebuilt = false;
+    if (signature !== builtSignature) {
+      build(visible);
+      builtSignature = signature;
+      rebuilt = true;
+    }
     applyPosition(config);
+    return rebuilt;
   }
 
   // Pre-label caps from the OS layout so QWERTZ/AZERTY/etc. render correctly
@@ -143,17 +236,16 @@
 
   async function init() {
     keyboard = document.getElementById("keyboard");
-    build();
     try {
       applyConfig(await core.invoke("get_config"));
     } catch {
-      // stays hidden if config can't load
+      build(null); // config unavailable: show the full keyboard, stays hidden
     }
     await applyLayout();
     await tauriEvent.listen("key-flash", (e) => onKeyFlash(e.payload));
     await tauriEvent.listen("config-updated", (e) => {
       applyConfig(e.payload);
-      applyLayout(); // re-detect if the layout override changed
+      applyLayout(); // re-detect if the layout override / visible-key set changed
     });
     // Leaving move mode (e.g. after Cancel) re-applies the configured position,
     // since overlay.js may have moved the keyboard live during the drag.

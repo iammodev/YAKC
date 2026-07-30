@@ -171,9 +171,27 @@ body {
 }
 
 /* The arrow row is narrower and centered. */
-#keyboard .kb-row:last-child .kb-key {
+#keyboard .kb-row.kb-arrows .kb-key {
   flex-grow: 0 !important;
   min-width: var(--kb-unit);
+}
+
+/* Trimmed keyboard (user picked a subset of keys): a compact grid of uniform
+   square caps aligned by column, so rows line up (A under Q) with the left-edge
+   modifiers sharing a column. Space stretches across its row. A spanning key
+   absorbs the internal gaps, so it stays one continuous cap. */
+#keyboard.kb-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--kb-cols, 5), var(--kb-unit));
+  grid-auto-rows: var(--kb-unit);
+  gap: 4px;
+  padding: 8px;
+}
+
+#keyboard.kb-grid .kb-key {
+  flex-basis: auto;
+  min-width: 0;
+  margin: 0;
 }
 
 .kb-key.active {

@@ -31,6 +31,7 @@ const OBS_HTML: &str = include_str!("../../src/obs.html");
 const SHIM_JS: &str = include_str!("../../src/tauri-shim.js");
 const OVERLAY_JS: &str = include_str!("../../src/overlay.js");
 const DEVICES_JS: &str = include_str!("../../src/devices.js");
+const KEYBOARD_LAYOUT_JS: &str = include_str!("../../src/keyboard-layout.js");
 const KEYBOARD_JS: &str = include_str!("../../src/keyboard.js");
 const STYLE_CSS: &str = include_str!("../../src/style.css");
 
@@ -155,6 +156,7 @@ fn handle(stream: TcpStream, config: &SharedConfig, hub: &Arc<ObsHub>) {
         "/tauri-shim.js" => respond(stream, "text/javascript; charset=utf-8", SHIM_JS),
         "/overlay.js" => respond(stream, "text/javascript; charset=utf-8", OVERLAY_JS),
         "/devices.js" => respond(stream, "text/javascript; charset=utf-8", DEVICES_JS),
+        "/keyboard-layout.js" => respond(stream, "text/javascript; charset=utf-8", KEYBOARD_LAYOUT_JS),
         "/keyboard.js" => respond(stream, "text/javascript; charset=utf-8", KEYBOARD_JS),
         "/style.css" => respond(stream, "text/css; charset=utf-8", STYLE_CSS),
         "/config" => {
