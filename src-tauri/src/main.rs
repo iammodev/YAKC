@@ -48,6 +48,51 @@ fn get_known_keys() -> Vec<KnownKey> {
     keymap::known_keys()
 }
 
+/// Names of currently-running processes, de-duplicated and sorted, so the
+/// settings UI can offer a pick-from-a-list process filter instead of relying
+/// on the user typing exact executable names. Cross-platform via `sysinfo`.
+#[tauri::command]
+fn get_running_processes() -> Vec<String> {
+    use sysinfo::{ProcessRefreshKind, RefreshKind, System};
+    let sys = System::new_with_specifics(
+        RefreshKind::nothing().with_processes(ProcessRefreshKind::nothing()),
+    );
+    let mut names: Vec<String> = sys
+        .processes()
+        .values()
+        .map(|p| p.name().to_string_lossy().to_string())
+        .filter(|n| !n.is_empty())
+        .collect();
+    names.sort_by_key(|n| n.to_lowercase());
+    names.dedup();
+    names
+}
+
+/// Human-readable descriptors for each connected monitor, index-aligned with
+/// `showOnMonitor`, so the settings UI can show a dropdown of real monitors
+/// instead of a bare index the user has to guess.
+#[tauri::command]
+fn get_monitors(app: AppHandle) -> Vec<String> {
+    let Some(window) = app.get_webview_window("overlay") else {
+        return Vec::new();
+    };
+    match window.available_monitors() {
+        Ok(monitors) => monitors
+            .iter()
+            .enumerate()
+            .map(|(i, m)| {
+                let name = m
+                    .name()
+                    .map(|n| n.to_string())
+                    .unwrap_or_else(|| "Monitor".to_string());
+                let size = m.size();
+                format!("{i}: {name} ({}×{})", size.width, size.height)
+            })
+            .collect(),
+        Err(_) => Vec::new(),
+    }
+}
+
 /// Base labels per physical key from the OS layout, so the on-screen keyboard
 /// shows the user's real layout immediately (QWERTZ/AZERTY/…), not QWERTY.
 #[tauri::command]
@@ -77,12 +122,16 @@ fn end_overlay_move(app: AppHandle, state: State<SharedConfig>) {
 fn save_config(
     app: AppHandle,
     state: State<SharedConfig>,
+    engine: State<Arc<filter::Engine>>,
     config: Config,
 ) -> Result<(), String> {
     if let Ok(mut guard) = state.write() {
         *guard = config.clone();
     }
     config::save(&app, &config)?;
+    // Apply the (possibly toggled) process filter immediately, so enabling or
+    // disabling it takes effect the instant you save — no wait for a poll tick.
+    engine.reevaluate();
     overlay::apply_placement(&app, &config);
     // Start the OBS server if this save just enabled it (no restart needed).
     obs_server::ensure_started(&app, &config);
@@ -119,6 +168,8 @@ fn main() {
             get_config,
             get_config_path,
             get_known_keys,
+            get_running_processes,
+            get_monitors,
             get_key_labels,
             get_pending_errors,
             save_config,
@@ -172,7 +223,30 @@ fn main() {
                 .build(app)?;
 
             input::start(handle.clone(), shared.clone(), capturing.clone());
-            filter::spawn(shared, capturing);
+
+            // Process filter. On a Wayland session the focused window is hidden
+            // from X11 tools, so we take a push-based source (KDE exposes focus
+            // via KWin's D-Bus scripting); elsewhere the filter polls the focused
+            // window itself.
+            let wayland_active: Option<filter::ActiveApp> = {
+                #[cfg(target_os = "linux")]
+                {
+                    if std::env::var("WAYLAND_DISPLAY").is_ok() {
+                        Some(Arc::new(std::sync::Mutex::new(None)))
+                    } else {
+                        None
+                    }
+                }
+                #[cfg(not(target_os = "linux"))]
+                {
+                    None
+                }
+            };
+            let filter_engine = filter::Engine::new(shared, capturing, wayland_active);
+            app.manage(filter_engine.clone());
+            #[cfg(target_os = "linux")]
+            input::kwin_focus::start(filter_engine.clone());
+            filter::spawn(filter_engine);
 
             Ok(())
         })

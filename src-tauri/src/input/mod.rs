@@ -20,6 +20,8 @@ mod evdev_backend;
 #[cfg(target_os = "linux")]
 mod wayland_keymap;
 #[cfg(target_os = "linux")]
+pub mod kwin_focus;
+#[cfg(target_os = "linux")]
 use evdev_backend as platform;
 
 // Per-OS enumeration of each physical key's base label in the active layout, so

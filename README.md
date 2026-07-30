@@ -179,7 +179,7 @@ Settings live in `config.json` — edit them via the Settings window or by hand:
 | `textToSpeech` / `textToSpeechCancelSpeechOnNewKey` | Speak keystrokes aloud |
 | `position` | `top-left`, `top-right`, `bottom-left`, `bottom-right` |
 | `topOffset` / `bottomOffset` / `leftOffset` / `rightOffset` | Pixel offsets from the anchored corner |
-| `filter` / `filterProcessName` / `filterCheckEverySecond` | Capture only while listed processes are focused |
+| `filter` / `filterProcessName` | Capture only while a listed app is focused (pick from running apps in Settings). Works on Windows, macOS, Linux X11, and Linux Wayland on KDE. |
 | `toggleCaptureHotkey` | Global capture toggle, e.g. `Ctrl+Alt+Y` (needs ≥ 1 modifier) |
 | `keyLabelOverrides` | Override display text for any key. Key = internal key id (`backspace`, `f1`, `meta`, `ctrl`, …), value = custom text. Example: `{"meta": "MOD"}` shows `MOD` instead of `META` in combos. |
 
