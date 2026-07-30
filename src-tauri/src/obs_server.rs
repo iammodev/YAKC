@@ -31,6 +31,7 @@ const OBS_HTML: &str = include_str!("../../src/obs.html");
 const SHIM_JS: &str = include_str!("../../src/tauri-shim.js");
 const OVERLAY_JS: &str = include_str!("../../src/overlay.js");
 const DEVICES_JS: &str = include_str!("../../src/devices.js");
+const KEYBOARD_JS: &str = include_str!("../../src/keyboard.js");
 const STYLE_CSS: &str = include_str!("../../src/style.css");
 
 /// How often an idle SSE connection gets a heartbeat comment — keeps the
@@ -154,6 +155,7 @@ fn handle(stream: TcpStream, config: &SharedConfig, hub: &Arc<ObsHub>) {
         "/tauri-shim.js" => respond(stream, "text/javascript; charset=utf-8", SHIM_JS),
         "/overlay.js" => respond(stream, "text/javascript; charset=utf-8", OVERLAY_JS),
         "/devices.js" => respond(stream, "text/javascript; charset=utf-8", DEVICES_JS),
+        "/keyboard.js" => respond(stream, "text/javascript; charset=utf-8", KEYBOARD_JS),
         "/style.css" => respond(stream, "text/css; charset=utf-8", STYLE_CSS),
         "/config" => {
             let json = config
@@ -161,6 +163,16 @@ fn handle(stream: TcpStream, config: &SharedConfig, hub: &Arc<ObsHub>) {
                 .ok()
                 .and_then(|cfg| serde_json::to_string(&*cfg).ok())
                 .unwrap_or_else(|| "{}".to_string());
+            respond(stream, "application/json; charset=utf-8", &json);
+        }
+        "/key_labels" => {
+            let layout = config
+                .read()
+                .ok()
+                .map(|cfg| cfg.keyboard_layout.clone())
+                .filter(|layout| !layout.trim().is_empty());
+            let labels = crate::input::key_labels(layout.as_deref());
+            let json = serde_json::to_string(&labels).unwrap_or_else(|_| "{}".to_string());
             respond(stream, "application/json; charset=utf-8", &json);
         }
         "/events" => stream_events(stream, hub),

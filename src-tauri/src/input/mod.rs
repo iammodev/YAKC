@@ -22,6 +22,27 @@ mod wayland_keymap;
 #[cfg(target_os = "linux")]
 use evdev_backend as platform;
 
+// Per-OS enumeration of each physical key's base label in the active layout, so
+// the on-screen keyboard shows the user's real layout immediately. Each platform
+// uses its native API (Linux xkbcommon, Windows ToUnicodeEx, macOS UCKeyTranslate).
+#[cfg(target_os = "linux")]
+pub use evdev_backend::key_labels;
+
+#[cfg(target_os = "windows")]
+mod labels_windows;
+#[cfg(target_os = "windows")]
+pub use labels_windows::key_labels;
+
+#[cfg(target_os = "macos")]
+mod labels_macos;
+#[cfg(target_os = "macos")]
+pub use labels_macos::key_labels;
+
+#[cfg(not(any(target_os = "linux", target_os = "windows", target_os = "macos")))]
+pub fn key_labels(_layout_override: Option<&str>) -> std::collections::HashMap<String, String> {
+    std::collections::HashMap::new()
+}
+
 /// Modifier state at the time of a key event.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Mods {
@@ -40,9 +61,20 @@ pub enum RawInput {
         text: Option<String>,
         /// Backend-normalized id for non-printable keys ("backspace", "f1", …).
         named: Option<&'static str>,
+        /// Physical key position, W3C-KeyboardEvent-style ("KeyQ", "Digit1",
+        /// "Enter", …). Layout-independent, so the on-screen keyboard lights the
+        /// right cap on QWERTZ/AZERTY/etc. `None` for keys not on the keyboard.
+        code: Option<&'static str>,
         mods: Mods,
         /// True when this press is an auto-repeat of a held key.
         repeat: bool,
+    },
+    /// A modifier key changed state, with its physical side ("ShiftLeft", …).
+    /// Modifiers don't produce popups; this drives the on-screen keyboard so a
+    /// held modifier lights up (and the correct left/right cap).
+    Modifier {
+        code: &'static str,
+        pressed: bool,
     },
     MouseButton {
         button: u8,
@@ -315,6 +347,7 @@ pub fn start(app: AppHandle, config: SharedConfig, capturing: Arc<AtomicBool>) {
                 named,
                 mods,
                 repeat,
+                ..
             } = &event
             {
                 if !repeat {
@@ -364,7 +397,34 @@ pub fn start(app: AppHandle, config: SharedConfig, capturing: Arc<AtomicBool>) {
                     }
                     continue;
                 }
+                // A held modifier lights (and un-lights) its exact cap.
+                RawInput::Modifier { code, pressed } => {
+                    if cfg.display_style == "keyboard" && cfg.show_keyboard_click {
+                        let payload = serde_json::json!({ "code": code, "pressed": pressed });
+                        emit_key_flash(&app, &payload);
+                    }
+                    continue;
+                }
                 _ => {}
+            }
+
+            // Keyboard-skin mode: flash the pressed cap by physical position, and
+            // relabel it from the character the OS produced (so the displayed
+            // keyboard matches the user's actual layout).
+            if cfg.display_style == "keyboard" && cfg.show_keyboard_click {
+                if let RawInput::Key {
+                    text,
+                    code: Some(code),
+                    mods,
+                    repeat: false,
+                    ..
+                } = &event
+                {
+                    // Only relabel from an unshifted press, to capture base chars.
+                    let label = if mods.shift { None } else { text.as_deref() };
+                    let payload = serde_json::json!({ "code": code, "label": label });
+                    emit_key_flash(&app, &payload);
+                }
             }
 
             let op = match &event {
@@ -373,6 +433,7 @@ pub fn start(app: AppHandle, config: SharedConfig, capturing: Arc<AtomicBool>) {
                     named,
                     mods,
                     repeat,
+                    ..
                 } => {
                     if !cfg.show_keyboard_click {
                         continue;
@@ -445,6 +506,14 @@ pub fn start(app: AppHandle, config: SharedConfig, capturing: Arc<AtomicBool>) {
             }
         }
     });
+}
+
+/// Emits a `key-flash` event to the native overlay and any OBS browser clients.
+fn emit_key_flash(app: &AppHandle, payload: &serde_json::Value) {
+    let _ = app.emit_to("overlay", "key-flash", payload);
+    if crate::obs_server::has_clients(app) {
+        crate::obs_server::broadcast(app, "key-flash", &payload.to_string());
+    }
 }
 
 /// Global cursor position. Works natively on Windows/macOS/X11. On Wayland the

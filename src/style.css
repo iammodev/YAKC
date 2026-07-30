@@ -131,6 +131,58 @@ body {
   padding-bottom: 4px;
 }
 
+/* On-screen keyboard ("keyboard" display style), rendered by keyboard.js and
+   flashed as keys are pressed. Anchored bottom-center. */
+#keyboard {
+  /* position/transform are set inline by keyboard.js (applyPosition). */
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--kb-bg, #000000) 55%, transparent);
+  pointer-events: none;
+  --kb-unit: 44px;
+}
+
+.kb-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.kb-key {
+  flex-basis: 0;
+  min-width: var(--kb-unit);
+  height: var(--kb-unit);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--kb-color, #ffffff) 30%, transparent);
+  background: color-mix(in srgb, var(--kb-color, #ffffff) 8%, transparent);
+  color: var(--kb-color, #ffffff);
+  font: 13px/1 system-ui, sans-serif;
+  opacity: 0.9;
+  transition: background-color 60ms ease-out, box-shadow 60ms ease-out, transform 60ms ease-out;
+}
+
+/* The arrow row is narrower and centered. */
+#keyboard .kb-row:last-child .kb-key {
+  flex-grow: 0 !important;
+  min-width: var(--kb-unit);
+}
+
+.kb-key.active {
+  background: var(--kb-color, #ffffff);
+  color: var(--kb-bg, #000000);
+  box-shadow: 0 0 12px var(--kb-color, #ffffff);
+  transform: translateY(1px);
+}
+
 /* Drag-to-position mode (overlay.js): a dimmed, interactive layer with a
    draggable handle and a Save/Cancel toolbar. */
 #moveBackdrop {

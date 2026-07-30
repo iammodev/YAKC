@@ -25,6 +25,15 @@ pub fn spawn_listener(
             match event.event_type {
                 EventType::KeyPress(key) => {
                     if update_modifier(&mut mods, key, true) {
+                        // Forward once (the OS delivers held modifiers as repeats).
+                        if held.insert(key) {
+                            if let Some(mcode) = modifier_code(key) {
+                                let _ = tx.send(RawInput::Modifier {
+                                    code: mcode,
+                                    pressed: true,
+                                });
+                            }
+                        }
                         return;
                     }
                     let repeat = !held.insert(key);
@@ -43,13 +52,21 @@ pub fn spawn_listener(
                     let _ = tx.send(RawInput::Key {
                         text,
                         named,
+                        code: code_for(key),
                         mods,
                         repeat,
                     });
                 }
                 EventType::KeyRelease(key) => {
                     held.remove(&key);
-                    update_modifier(&mut mods, key, false);
+                    if update_modifier(&mut mods, key, false) {
+                        if let Some(mcode) = modifier_code(key) {
+                            let _ = tx.send(RawInput::Modifier {
+                                code: mcode,
+                                pressed: false,
+                            });
+                        }
+                    }
                 }
                 EventType::ButtonPress(button) => {
                     let button = match button {
@@ -104,6 +121,51 @@ fn update_modifier(mods: &mut Mods, key: Key, pressed: bool) -> bool {
         _ => return false,
     }
     true
+}
+
+/// Physical modifier position for the on-screen keyboard.
+fn modifier_code(key: Key) -> Option<&'static str> {
+    Some(match key {
+        Key::ControlLeft => "ControlLeft",
+        Key::ControlRight => "ControlRight",
+        Key::Alt => "AltLeft",
+        Key::AltGr => "AltRight",
+        Key::ShiftLeft => "ShiftLeft",
+        Key::ShiftRight => "ShiftRight",
+        Key::MetaLeft => "MetaLeft",
+        Key::MetaRight => "MetaRight",
+        _ => return None,
+    })
+}
+
+/// Physical key position (W3C KeyboardEvent.code style) for the on-screen
+/// keyboard. Layout-independent, so the correct cap lights up on any layout.
+fn code_for(key: Key) -> Option<&'static str> {
+    Some(match key {
+        Key::KeyA => "KeyA", Key::KeyB => "KeyB", Key::KeyC => "KeyC", Key::KeyD => "KeyD",
+        Key::KeyE => "KeyE", Key::KeyF => "KeyF", Key::KeyG => "KeyG", Key::KeyH => "KeyH",
+        Key::KeyI => "KeyI", Key::KeyJ => "KeyJ", Key::KeyK => "KeyK", Key::KeyL => "KeyL",
+        Key::KeyM => "KeyM", Key::KeyN => "KeyN", Key::KeyO => "KeyO", Key::KeyP => "KeyP",
+        Key::KeyQ => "KeyQ", Key::KeyR => "KeyR", Key::KeyS => "KeyS", Key::KeyT => "KeyT",
+        Key::KeyU => "KeyU", Key::KeyV => "KeyV", Key::KeyW => "KeyW", Key::KeyX => "KeyX",
+        Key::KeyY => "KeyY", Key::KeyZ => "KeyZ",
+        Key::Num1 => "Digit1", Key::Num2 => "Digit2", Key::Num3 => "Digit3", Key::Num4 => "Digit4",
+        Key::Num5 => "Digit5", Key::Num6 => "Digit6", Key::Num7 => "Digit7", Key::Num8 => "Digit8",
+        Key::Num9 => "Digit9", Key::Num0 => "Digit0",
+        Key::Minus => "Minus", Key::Equal => "Equal",
+        Key::LeftBracket => "BracketLeft", Key::RightBracket => "BracketRight",
+        Key::BackSlash => "Backslash", Key::SemiColon => "Semicolon",
+        Key::Quote => "Quote", Key::BackQuote => "Backquote",
+        Key::Comma => "Comma", Key::Dot => "Period", Key::Slash => "Slash",
+        Key::Space => "Space", Key::Return => "Enter", Key::Tab => "Tab",
+        Key::Backspace => "Backspace", Key::CapsLock => "CapsLock", Key::Escape => "Escape",
+        Key::UpArrow => "ArrowUp", Key::DownArrow => "ArrowDown",
+        Key::LeftArrow => "ArrowLeft", Key::RightArrow => "ArrowRight",
+        Key::F1 => "F1", Key::F2 => "F2", Key::F3 => "F3", Key::F4 => "F4",
+        Key::F5 => "F5", Key::F6 => "F6", Key::F7 => "F7", Key::F8 => "F8",
+        Key::F9 => "F9", Key::F10 => "F10", Key::F11 => "F11", Key::F12 => "F12",
+        _ => return None,
+    })
 }
 
 /// Maps rdev non-printable keys to the shared named-key ids in keymap.rs.

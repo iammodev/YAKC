@@ -82,6 +82,9 @@ function applyConfigStyles() {
   } else {
     popupArea.style.transform = "none";
   }
+
+  // Keyboard-skin mode hides the popup stack (the keyboard renders instead).
+  popupArea.style.display = config.displayStyle === "keyboard" ? "none" : "flex";
 }
 
 function renderPopup(popup) {
@@ -128,6 +131,8 @@ function removePopup(popup) {
 
 function onPopupOp(payload) {
   if (!config || !payload || !payload.op) return;
+  // In keyboard-skin mode the on-screen keyboard (keyboard.js) renders instead.
+  if (config.displayStyle === "keyboard") return;
 
   const now = Date.now();
   const inactiveMs = num(config.popupInactiveAfterSeconds, 0.5) * 1000;
@@ -182,27 +187,46 @@ function showNotice(message) {
 }
 
 // Drag-to-position: the overlay becomes interactive (Rust drops click-through),
-// the user drags a handle to where popups should anchor, then Saves (persists
-// position=top-left + offsets) or Cancels. Only ever runs in the native
-// overlay — the OBS browser page never receives the "overlay-move" event.
+// the user drags the actual overlay content to the desired spot, then Saves
+// (persists position=top-left + offsets) or Cancels. Only ever runs in the
+// native overlay — the OBS browser page never receives the "overlay-move" event.
+// In keyboard style the on-screen keyboard is the drag target; otherwise a
+// labeled handle stands in for the (often empty) popup stack.
 let moveState = null;
 
 function enterMoveMode() {
   if (moveState) return;
 
+  const keyboardEl = document.getElementById("keyboard");
+  const useKeyboard = config.displayStyle === "keyboard" && keyboardEl;
+
   const backdrop = document.createElement("div");
   backdrop.id = "moveBackdrop";
 
-  const handle = document.createElement("div");
-  handle.id = "moveHandle";
-  handle.textContent = "Drag me — this is where your keys will appear";
-
-  // Start where the popups currently anchor.
-  const rect = popupArea.getBoundingClientRect();
-  const startX = Math.min(Math.max(rect.left || 40, 0), window.innerWidth - 260);
-  const startY = Math.min(Math.max(rect.top || 40, 0), window.innerHeight - 80);
-  handle.style.left = `${startX}px`;
-  handle.style.top = `${startY}px`;
+  let handle = null;
+  let target;
+  if (useKeyboard) {
+    // Drag the real keyboard: make it interactive and anchor by top-left.
+    target = keyboardEl;
+    const rect = target.getBoundingClientRect();
+    target.style.pointerEvents = "auto";
+    target.style.cursor = "move";
+    target.style.zIndex = "12"; // above #moveBackdrop, so it's grabbable
+    target.style.transformOrigin = "top left";
+    target.style.transform = `scale(${config.deviceWidgetScale || 1})`;
+    target.style.right = "auto";
+    target.style.bottom = "auto";
+    target.style.left = `${rect.left}px`;
+    target.style.top = `${rect.top}px`;
+  } else {
+    handle = document.createElement("div");
+    handle.id = "moveHandle";
+    handle.textContent = "Drag me — this is where your keys will appear";
+    const rect = popupArea.getBoundingClientRect();
+    handle.style.left = `${Math.min(Math.max(rect.left || 40, 0), window.innerWidth - 260)}px`;
+    handle.style.top = `${Math.min(Math.max(rect.top || 40, 0), window.innerHeight - 80)}px`;
+    target = handle;
+  }
 
   const toolbar = document.createElement("div");
   toolbar.id = "moveToolbar";
@@ -219,51 +243,66 @@ function enterMoveMode() {
   let offY = 0;
   const onDown = (e) => {
     dragging = true;
-    offX = e.clientX - handle.offsetLeft;
-    offY = e.clientY - handle.offsetTop;
+    const rect = target.getBoundingClientRect();
+    offX = e.clientX - rect.left;
+    offY = e.clientY - rect.top;
     e.preventDefault();
   };
   const onMove = (e) => {
     if (!dragging) return;
-    const x = Math.min(Math.max(e.clientX - offX, 0), window.innerWidth - handle.offsetWidth);
-    const y = Math.min(Math.max(e.clientY - offY, 0), window.innerHeight - handle.offsetHeight);
-    handle.style.left = `${x}px`;
-    handle.style.top = `${y}px`;
+    let x = Math.max(e.clientX - offX, 0);
+    const y = Math.max(e.clientY - offY, 0);
+    // QoL: snap to horizontal center when within a few px.
+    const w = target.getBoundingClientRect().width;
+    const centeredX = (window.innerWidth - w) / 2;
+    if (Math.abs(x - centeredX) < 15) x = centeredX;
+    target.style.left = `${x}px`;
+    target.style.top = `${y}px`;
   };
   const onUp = () => {
     dragging = false;
   };
 
-  handle.addEventListener("mousedown", onDown);
+  target.addEventListener("mousedown", onDown);
   window.addEventListener("mousemove", onMove);
   window.addEventListener("mouseup", onUp);
 
   saveBtn.addEventListener("click", async () => {
+    const rect = target.getBoundingClientRect();
     config.position = "top-left";
-    config.leftOffset = Math.round(handle.offsetLeft);
-    config.topOffset = Math.round(handle.offsetTop);
+    config.leftOffset = Math.round(rect.left);
+    config.topOffset = Math.round(rect.top);
     config.rightOffset = 0;
     config.bottomOffset = 0;
     try {
       await core.invoke("save_config", { config });
     } catch {
-      // config-updated will not fire; leaving move mode still restores state.
+      // config-updated won't fire; leaving move mode still restores state.
     }
     await core.invoke("end_overlay_move");
   });
   cancelBtn.addEventListener("click", () => core.invoke("end_overlay_move"));
 
-  document.body.append(backdrop, handle, toolbar);
-  moveState = { backdrop, handle, toolbar, onMove, onUp };
+  document.body.append(backdrop, toolbar);
+  if (handle) document.body.appendChild(handle);
+  moveState = { backdrop, handle, toolbar, target, onDown, onMove, onUp, useKeyboard };
 }
 
 function exitMoveMode() {
   if (!moveState) return;
   window.removeEventListener("mousemove", moveState.onMove);
   window.removeEventListener("mouseup", moveState.onUp);
+  moveState.target.removeEventListener("mousedown", moveState.onDown);
   moveState.backdrop.remove();
-  moveState.handle.remove();
+  if (moveState.handle) moveState.handle.remove();
   moveState.toolbar.remove();
+  if (moveState.useKeyboard) {
+    // Restore click-through; keyboard.js re-applies its configured position
+    // (also handles the Cancel case, where nothing was saved).
+    moveState.target.style.pointerEvents = "none";
+    moveState.target.style.cursor = "";
+    moveState.target.style.zIndex = "";
+  }
   moveState = null;
 }
 

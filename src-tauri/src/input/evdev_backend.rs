@@ -164,6 +164,12 @@ fn handle_key_event(
             // press (1) or autorepeat (2); repeats show popups like the original
             if is_modifier(code) {
                 if value == 1 {
+                    if let Some(mcode) = modifier_code(code) {
+                        let _ = tx.send(RawInput::Modifier {
+                            code: mcode,
+                            pressed: true,
+                        });
+                    }
                     state.update_key(keycode, xkb::KeyDirection::Down);
                 }
                 return;
@@ -200,16 +206,99 @@ fn handle_key_event(
                 let _ = tx.send(RawInput::Key {
                     text,
                     named,
+                    code: code_for(code),
                     mods,
                     repeat: value == 2,
                 });
             }
         }
         0 => {
+            if is_modifier(code) {
+                if let Some(mcode) = modifier_code(code) {
+                    let _ = tx.send(RawInput::Modifier {
+                        code: mcode,
+                        pressed: false,
+                    });
+                }
+            }
             state.update_key(keycode, xkb::KeyDirection::Up);
         }
         _ => {}
     }
+}
+
+/// Physical modifier position for the on-screen keyboard.
+fn modifier_code(code: evdev::KeyCode) -> Option<&'static str> {
+    use evdev::KeyCode as K;
+    Some(match code {
+        K::KEY_LEFTCTRL => "ControlLeft",
+        K::KEY_RIGHTCTRL => "ControlRight",
+        K::KEY_LEFTALT => "AltLeft",
+        K::KEY_RIGHTALT => "AltRight",
+        K::KEY_LEFTSHIFT => "ShiftLeft",
+        K::KEY_RIGHTSHIFT => "ShiftRight",
+        K::KEY_LEFTMETA => "MetaLeft",
+        K::KEY_RIGHTMETA => "MetaRight",
+        _ => return None,
+    })
+}
+
+/// Physical key → W3C KeyboardEvent.code, for the on-screen keyboard's caps
+/// (which are addressed by physical position, so any layout lights up right).
+/// One table drives both `code_for` (live events) and `key_labels` (startup
+/// layout detection).
+const CODE_TABLE: &[(evdev::KeyCode, &str)] = {
+    use evdev::KeyCode as K;
+    &[
+        (K::KEY_A, "KeyA"), (K::KEY_B, "KeyB"), (K::KEY_C, "KeyC"), (K::KEY_D, "KeyD"),
+        (K::KEY_E, "KeyE"), (K::KEY_F, "KeyF"), (K::KEY_G, "KeyG"), (K::KEY_H, "KeyH"),
+        (K::KEY_I, "KeyI"), (K::KEY_J, "KeyJ"), (K::KEY_K, "KeyK"), (K::KEY_L, "KeyL"),
+        (K::KEY_M, "KeyM"), (K::KEY_N, "KeyN"), (K::KEY_O, "KeyO"), (K::KEY_P, "KeyP"),
+        (K::KEY_Q, "KeyQ"), (K::KEY_R, "KeyR"), (K::KEY_S, "KeyS"), (K::KEY_T, "KeyT"),
+        (K::KEY_U, "KeyU"), (K::KEY_V, "KeyV"), (K::KEY_W, "KeyW"), (K::KEY_X, "KeyX"),
+        (K::KEY_Y, "KeyY"), (K::KEY_Z, "KeyZ"),
+        (K::KEY_1, "Digit1"), (K::KEY_2, "Digit2"), (K::KEY_3, "Digit3"), (K::KEY_4, "Digit4"),
+        (K::KEY_5, "Digit5"), (K::KEY_6, "Digit6"), (K::KEY_7, "Digit7"), (K::KEY_8, "Digit8"),
+        (K::KEY_9, "Digit9"), (K::KEY_0, "Digit0"),
+        (K::KEY_MINUS, "Minus"), (K::KEY_EQUAL, "Equal"),
+        (K::KEY_LEFTBRACE, "BracketLeft"), (K::KEY_RIGHTBRACE, "BracketRight"),
+        (K::KEY_BACKSLASH, "Backslash"), (K::KEY_SEMICOLON, "Semicolon"),
+        (K::KEY_APOSTROPHE, "Quote"), (K::KEY_GRAVE, "Backquote"),
+        (K::KEY_COMMA, "Comma"), (K::KEY_DOT, "Period"), (K::KEY_SLASH, "Slash"),
+        (K::KEY_SPACE, "Space"), (K::KEY_ENTER, "Enter"), (K::KEY_TAB, "Tab"),
+        (K::KEY_BACKSPACE, "Backspace"), (K::KEY_CAPSLOCK, "CapsLock"), (K::KEY_ESC, "Escape"),
+        (K::KEY_UP, "ArrowUp"), (K::KEY_DOWN, "ArrowDown"),
+        (K::KEY_LEFT, "ArrowLeft"), (K::KEY_RIGHT, "ArrowRight"),
+        (K::KEY_F1, "F1"), (K::KEY_F2, "F2"), (K::KEY_F3, "F3"), (K::KEY_F4, "F4"),
+        (K::KEY_F5, "F5"), (K::KEY_F6, "F6"), (K::KEY_F7, "F7"), (K::KEY_F8, "F8"),
+        (K::KEY_F9, "F9"), (K::KEY_F10, "F10"), (K::KEY_F11, "F11"), (K::KEY_F12, "F12"),
+    ]
+};
+
+fn code_for(code: evdev::KeyCode) -> Option<&'static str> {
+    CODE_TABLE
+        .iter()
+        .find(|(key, _)| *key == code)
+        .map(|(_, w3c)| *w3c)
+}
+
+/// Base (unshifted) character for every keyboard cap in the active layout, keyed
+/// by W3C code — so the on-screen keyboard shows the user's real layout (QWERTZ,
+/// AZERTY, …) immediately, without waiting for keys to be pressed. Uses the same
+/// OS layout (xkbcommon) as live translation.
+pub fn key_labels(layout_override: Option<&str>) -> std::collections::HashMap<String, String> {
+    let mut labels = std::collections::HashMap::new();
+    let Ok(state) = build_xkb_state(layout_override) else {
+        return labels;
+    };
+    for (code, w3c) in CODE_TABLE {
+        let keycode = xkb::Keycode::new(code.0 as u32 + 8);
+        let text = state.key_get_utf8(keycode);
+        if !text.is_empty() && !text.chars().all(char::is_control) {
+            labels.insert(w3c.to_string(), text);
+        }
+    }
+    labels
 }
 
 /// Compiles an xkb keymap for the active layout.

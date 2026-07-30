@@ -48,6 +48,18 @@ fn get_known_keys() -> Vec<KnownKey> {
     keymap::known_keys()
 }
 
+/// Base labels per physical key from the OS layout, so the on-screen keyboard
+/// shows the user's real layout immediately (QWERTZ/AZERTY/…), not QWERTY.
+#[tauri::command]
+fn get_key_labels(state: State<SharedConfig>) -> std::collections::HashMap<String, String> {
+    let layout = state
+        .read()
+        .ok()
+        .map(|cfg| cfg.keyboard_layout.clone())
+        .filter(|layout| !layout.trim().is_empty());
+    input::key_labels(layout.as_deref())
+}
+
 /// Enters drag-to-position mode on the overlay (temporary non-click-through).
 #[tauri::command]
 fn begin_overlay_move(app: AppHandle) {
@@ -107,6 +119,7 @@ fn main() {
             get_config,
             get_config_path,
             get_known_keys,
+            get_key_labels,
             get_pending_errors,
             save_config,
             begin_overlay_move,

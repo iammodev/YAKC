@@ -43,7 +43,8 @@ const SECTIONS = [
   {
     title: "Input",
     fields: [
-      { key: "displayMode", type: "select", label: "Display mode", options: ["text", "raw"], hint: "text: like a text editor — only typed characters, Backspace deletes. raw: every key (modifiers, ⌫, arrows, …)" },
+      { key: "displayStyle", type: "select", label: "Overlay style", options: ["popups", "keyboard"], hint: "popups: fading key popups. keyboard: an on-screen keyboard that lights up as you type (great for tutorials/streams)." },
+      { key: "displayMode", type: "select", label: "Display mode", options: ["text", "raw"], hint: "Popups only. text: like a text editor — only typed characters, Backspace deletes. raw: every key (modifiers, ⌫, arrows, …)" },
       { key: "showKeyboardClick", type: "bool", label: "Show keyboard clicks" },
       { key: "showMouseClick", type: "bool", label: "Show mouse clicks" },
       { key: "showMouseCoordinates", type: "bool", label: "Show mouse coordinates", hint: "Not available on Wayland (the compositor hides the cursor position)" },

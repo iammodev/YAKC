@@ -30,6 +30,8 @@
         switch (cmd) {
           case "get_config":
             return (await fetch("/config")).json();
+          case "get_key_labels":
+            return (await fetch("/key_labels")).json();
           case "get_pending_errors":
             return [];
           case "get_config_path":

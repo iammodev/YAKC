@@ -5692,6 +5692,7 @@ name = "yakc"
 version = "2.0.0"
 dependencies = [
  "active-win-pos-rs",
+ "core-foundation 0.10.1",
  "evdev",
  "gilrs",
  "libc",
@@ -5705,6 +5706,7 @@ dependencies = [
  "tauri-plugin-single-instance",
  "tts",
  "wayland-client",
+ "windows 0.58.0",
  "xkbcommon",
 ]
 

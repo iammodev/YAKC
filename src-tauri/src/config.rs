@@ -79,6 +79,9 @@ pub struct Config {
     /// "text": popups behave like a text editor — only typed characters show,
     /// Backspace deletes. "raw": every key shows (modifiers, ⌫, arrows, …).
     pub display_mode: String,
+    /// Overlay rendering style. "popups": fading key popups (default).
+    /// "keyboard": an on-screen keyboard whose caps light up as you type.
+    pub display_style: String,
     /// Override display text for any key. Key = internal key id
     /// ("backspace", "f1", "meta", "ctrl", …), value = custom display text.
     /// E.g. {"meta": "MOD"} shows "MOD" instead of "META" in combos.
@@ -138,6 +141,7 @@ impl Default for Config {
             filter_check_every_second: 0.5,
             toggle_capture_hotkey: "Ctrl+Alt+Y".into(),
             display_mode: "text".into(),
+            display_style: "popups".into(),
             key_label_overrides: HashMap::new(),
             obs_server_enabled: false,
             obs_server_port: 7238,

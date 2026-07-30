@@ -27,6 +27,14 @@ gilrs = "0.11"
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
 rdev = "0.5"
 
+# Windows: read the active keyboard layout (ToUnicodeEx) to label the on-screen
+# keyboard for the user's real layout.
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.58", features = [
+    "Win32_Foundation",
+    "Win32_UI_Input_KeyboardAndMouse",
+] }
+
 # Linux: read /dev/input directly so capture works identically on X11 and
 # Wayland; xkbcommon translates keycodes per the active layout.
 [target.'cfg(target_os = "linux")'.dependencies]
@@ -37,9 +45,12 @@ xkbcommon = "0.8"
 wayland-client = "0.31"
 libc = "0.2"
 
-# macOS: raise the overlay to screen-saver window level (above fullscreen apps).
+# macOS: raise the overlay to screen-saver window level (above fullscreen apps);
+# read the active keyboard layout (UCKeyTranslate/TIS) to label the on-screen
+# keyboard for the user's real layout.
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = "0.6"
+core-foundation = "0.10"
 
 [profile.release]
 strip = true
