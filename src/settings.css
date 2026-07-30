@@ -197,6 +197,59 @@ footer button:hover {
   outline: 2px solid color-mix(in srgb, currentColor 40%, transparent);
 }
 
+/* Profiles tab. */
+.profiles-active {
+  font-size: 13px;
+  margin: 4px 0 12px;
+  opacity: 0.8;
+}
+
+.profiles-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.profiles-select,
+.profiles-name {
+  flex: 1;
+  min-width: 140px;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.profiles-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.profiles-btn:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.preset-btn {
+  background: color-mix(in srgb, #3b82f6 16%, transparent);
+  border-color: color-mix(in srgb, #3b82f6 40%, transparent);
+}
+
+.preset-btn:hover {
+  background: color-mix(in srgb, #3b82f6 28%, transparent);
+}
+
 /* Process picker: selected chips, a search box, and a scrollable checklist. */
 .proc-picker {
   display: flex;

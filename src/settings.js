@@ -3,7 +3,9 @@
  * Saving persists config.json and live-applies to the overlay.
  */
 
-const { core } = window.__TAURI__;
+const { core, event: tauriEvent } = window.__TAURI__;
+
+const PROFILES_TAB = "Profiles";
 
 // Cross-platform-safe font stacks offered in the font picker (free text still
 // allowed via the combobox).
@@ -166,7 +168,7 @@ function buildForm() {
   form.textContent = "";
   procPickers.length = 0;
 
-  const tabs = [...new Set(SECTIONS.map((s) => s.tab))];
+  const tabs = [...new Set(SECTIONS.map((s) => s.tab)), PROFILES_TAB];
   const nav = document.createElement("nav");
   nav.className = "tabs";
   const panels = document.createElement("div");
@@ -196,6 +198,8 @@ function buildForm() {
     panel.appendChild(heading);
     for (const field of section.fields) buildField(field, panel);
   }
+
+  buildProfilesPanel(panelByTab.get(PROFILES_TAB));
 
   form.append(nav, panels);
 
@@ -495,6 +499,194 @@ function buildProcessPicker(field, panel) {
   procPickers.push({ tab: panel.dataset.tab, load });
 }
 
+// Rebuild the whole form after the config changed underneath us (profile load,
+// preset, import), staying on the given tab.
+async function reloadForm(activeTab) {
+  config = await core.invoke("get_config");
+  buildForm();
+  hydrateMonitors();
+  if (activeTab) activateTab(activeTab);
+}
+
+// The Profiles tab: named snapshots + bundled presets + import/export. Custom
+// UI (not schema-driven), all wired to the profile backend commands.
+function buildProfilesPanel(panel) {
+  const setStatus = (msg) => {
+    const status = document.getElementById("status");
+    if (!status) return;
+    status.textContent = msg;
+    clearTimeout(setStatus._t);
+    setStatus._t = setTimeout(() => (status.textContent = ""), 4000);
+  };
+
+  const guard = async (fn) => {
+    try {
+      await fn();
+    } catch (err) {
+      setStatus(`Error: ${err}`);
+    }
+  };
+
+  const heading = (text) => {
+    const h = document.createElement("h2");
+    h.textContent = text;
+    return h;
+  };
+
+  const button = (label, cls, onClick) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = cls;
+    b.textContent = label;
+    b.addEventListener("click", onClick);
+    return b;
+  };
+
+  panel.appendChild(heading("Profiles"));
+
+  const active = document.createElement("p");
+  active.className = "profiles-active";
+  panel.appendChild(active);
+
+  // Row: profile dropdown + Load + Delete.
+  const select = document.createElement("select");
+  select.className = "profiles-select";
+  const pickRow = document.createElement("div");
+  pickRow.className = "profiles-row";
+  pickRow.append(
+    select,
+    button("Load", "profiles-btn", () =>
+      guard(async () => {
+        const name = select.value;
+        if (!name) return;
+        await core.invoke("load_profile", { name });
+        await reloadForm(PROFILES_TAB);
+        setStatus(`Loaded “${name}” ✓`);
+      })
+    ),
+    button("Delete", "profiles-btn", () =>
+      guard(async () => {
+        const name = select.value;
+        if (!name) return;
+        await core.invoke("delete_profile", { name });
+        await refreshProfiles();
+        setStatus(`Deleted “${name}”`);
+      })
+    )
+  );
+  panel.appendChild(pickRow);
+
+  // Row: name box + Save-as + Rename.
+  const nameInput = document.createElement("input");
+  nameInput.type = "text";
+  nameInput.className = "profiles-name";
+  nameInput.placeholder = "Profile name";
+  const nameRow = document.createElement("div");
+  nameRow.className = "profiles-row";
+  nameRow.append(
+    nameInput,
+    button("Save current as", "profiles-btn", () =>
+      guard(async () => {
+        const name = nameInput.value.trim();
+        if (!name) return setStatus("Enter a profile name first");
+        await core.invoke("save_profile", { name });
+        nameInput.value = "";
+        await refreshProfiles();
+        setStatus(`Saved “${name}” ✓`);
+      })
+    ),
+    button("Rename selected", "profiles-btn", () =>
+      guard(async () => {
+        const old = select.value;
+        const next = nameInput.value.trim();
+        if (!old || !next) return setStatus("Pick a profile and type a new name");
+        await core.invoke("rename_profile", { old, new: next });
+        nameInput.value = "";
+        await refreshProfiles();
+        setStatus(`Renamed to “${next}”`);
+      })
+    )
+  );
+  panel.appendChild(nameRow);
+
+  // Row: import / export.
+  const ioRow = document.createElement("div");
+  ioRow.className = "profiles-row";
+  ioRow.append(
+    button("Import JSON…", "profiles-btn", () =>
+      guard(async () => {
+        const imported = await core.invoke("import_config");
+        if (imported) {
+          await reloadForm(PROFILES_TAB);
+          setStatus("Imported config ✓");
+        }
+      })
+    ),
+    button("Export JSON…", "profiles-btn", () =>
+      guard(async () => {
+        const ok = await core.invoke("export_config");
+        setStatus(ok ? "Exported config ✓" : "Export cancelled");
+      })
+    )
+  );
+  panel.appendChild(ioRow);
+
+  // Bundled presets.
+  panel.appendChild(heading("Starter presets"));
+  const presetHint = document.createElement("p");
+  presetHint.className = "hint";
+  presetHint.textContent =
+    "Apply a starter look on top of your current settings, then tweak and save it as a profile.";
+  panel.appendChild(presetHint);
+  const presetRow = document.createElement("div");
+  presetRow.className = "profiles-row";
+  panel.appendChild(presetRow);
+  guard(async () => {
+    const presets = await core.invoke("list_presets");
+    for (const name of presets) {
+      presetRow.appendChild(
+        button(name, "profiles-btn preset-btn", () =>
+          guard(async () => {
+            await core.invoke("apply_preset", { name });
+            await reloadForm(PROFILES_TAB);
+            setStatus(`Applied “${name}” preset ✓`);
+          })
+        )
+      );
+    }
+  });
+
+  // Populate (and re-populate) the dropdown + active label.
+  async function refreshProfiles() {
+    const [names, current] = await Promise.all([
+      core.invoke("list_profiles"),
+      core.invoke("get_active_profile"),
+    ]);
+    select.textContent = "";
+    if (names.length === 0) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "(no saved profiles)";
+      select.appendChild(opt);
+      select.disabled = true;
+    } else {
+      select.disabled = false;
+      for (const name of names) {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
+      }
+      if (current) select.value = current;
+    }
+    active.textContent = current ? `Active profile: ${current}` : "No profile selected (custom settings)";
+  }
+
+  // Expose so external events (tray, profiles-updated) can refresh it.
+  buildProfilesPanel._refresh = refreshProfiles;
+  guard(refreshProfiles);
+}
+
 function collectForm() {
   const updated = { ...config };
   for (const input of document.querySelectorAll("[data-key]")) {
@@ -579,6 +771,12 @@ async function init() {
       e.preventDefault();
       save();
     }
+  });
+  // The tray "Manage profiles…" opens settings on the Profiles tab.
+  tauriEvent.listen("open-profiles-tab", () => activateTab(PROFILES_TAB));
+  // Keep the Profiles list fresh when a profile is switched from the tray.
+  tauriEvent.listen("profiles-updated", () => {
+    if (buildProfilesPanel._refresh) buildProfilesPanel._refresh();
   });
 }
 
