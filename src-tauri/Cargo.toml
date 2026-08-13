@@ -1,6 +1,6 @@
 [package]
 name = "yakc"
-version = "2.8.0"
+version = "2.8.1"
 description = "YAKC - Yet Another Key Caster"
 authors = ["IAMMODEV"]
 license = "MIT"
@@ -24,7 +24,6 @@ gilrs = "0.11"
 # Cross-platform process enumeration for the "pick from running apps" process
 # filter (no per-OS code; works on Windows, macOS and Linux).
 sysinfo = { version = "0.33", default-features = false, features = ["system"] }
-gtk = "0.18.2"
 
 # Windows & macOS: global hook via the OS APIs (WH_KEYBOARD_LL / CGEventTap),
 # with OS-native key-to-character translation for any keyboard language.
@@ -44,6 +43,10 @@ windows = { version = "0.58", features = [
 [target.'cfg(target_os = "linux")'.dependencies]
 evdev = "0.13"
 xkbcommon = "0.8"
+# Set override-redirect on the X11 overlay window so it lives outside the WM
+# and can never take focus. Only pulled in on Linux — the gtk crate needs GTK3
+# system libs and does not build on Windows/macOS.
+gtk = "0.18.2"
 # Read the focused window on Wayland (which hides it from X11 tools) via the
 # compositor's D-Bus interface — used for the process filter on KDE/KWin.
 zbus = "4"
