@@ -24,6 +24,7 @@ gilrs = "0.11"
 # Cross-platform process enumeration for the "pick from running apps" process
 # filter (no per-OS code; works on Windows, macOS and Linux).
 sysinfo = { version = "0.33", default-features = false, features = ["system"] }
+gtk = "0.18.2"
 
 # Windows & macOS: global hook via the OS APIs (WH_KEYBOARD_LL / CGEventTap),
 # with OS-native key-to-character translation for any keyboard language.

@@ -5857,6 +5857,7 @@ dependencies = [
  "core-foundation 0.10.1",
  "evdev",
  "gilrs",
+ "gtk",
  "libc",
  "objc2",
  "rdev",

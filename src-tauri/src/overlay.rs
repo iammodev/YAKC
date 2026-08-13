@@ -21,8 +21,13 @@ pub fn create(app: &AppHandle, config: &Config) -> tauri::Result<WebviewWindow> 
         .skip_taskbar(true)
         .always_on_top(true)
         .visible_on_all_workspaces(true)
+        .visible(false) // Will be shown after OR set
         .build()?;
 
+    #[cfg(target_os = "linux")]
+    let _ = set_override_redirect(&window);
+
+    window.show()?;
     window.set_ignore_cursor_events(true)?;
     place_on_monitor(app, &window, config);
     apply_visibility(&window, config);
@@ -106,6 +111,20 @@ pub fn show_settings(app: &AppHandle) {
         let _ = window.unminimize();
         let _ = window.set_focus();
     }
+}
+
+/// Linux: set override-redirect for x11 make the window outside of the window manager
+#[cfg(target_os = "linux")]
+fn set_override_redirect(window: &tauri::WebviewWindow) -> Result<(), Box<dyn std::error::Error>> {
+    use gtk::prelude::WidgetExt;
+    let w = window.gtk_window()?;
+
+    w.connect_realize(|widget| {
+        if let Some(gdk_win) = widget.window() {
+            gdk_win.set_override_redirect(true);
+        }
+    });
+    Ok(())
 }
 
 /// macOS: lift the overlay to screen-saver level so it also renders above
