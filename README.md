@@ -59,8 +59,9 @@ Most keycasters only run on **one** operating system, and the streaming-oriented
 | **macOS** (Intel + Apple Silicon) | ✅ | ✅ | — | — | — | ⚠️ |
 | **Linux · X11** | ✅ | — | — | ✅ | ✅ | ⚠️ |
 | **Linux · Wayland** | ✅ | — | — | ⚠️ limited | ✅ | — |
-| **Mouse clicks** | ✅ | — | — | — | ✅ | ✅ |
-| **Mouse movement + scroll** | ✅ | — | — | — | — | ✅ |
+| **Mouse clicks** | ✅ | — | — | ✅ | ✅ | ✅ |
+| **Mouse scroll** | ✅ | — | — | ✅ | — | ✅ |
+| **Mouse movement** | ✅ | — | — | — | — | ✅ |
 | **Gamepad / controller** | ✅ | — | — | — | — | ✅ |
 | **On-screen keyboard / device skins** | ✅ | — | — | — | — | ✅ |
 | **OBS browser source (transparent)** | ✅ | — | — | — | — | ✅ |
